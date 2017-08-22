@@ -1422,7 +1422,7 @@ hr{margin-top:20px;margin-bottom:20px;border:0;border-top:1px solid #eee}
 @media (min-width:992px){.ad{position:absolute;top:20px;right:15px;padding:15px!important;width:330px!important}
 .docs-home .ad{position:static}
 }
-.docs-content,.docs-header .container{position:relative;min-height: 50%}
+.docs-content,.docs-header .container{position:relative;}
 @media (min-width:1170px){.docs-home .ad{margin-top:-25px!important}
 }
 .banner{padding:8px 20px;color:#777;background-color:#fafafa;border-top:1px solid #fff;border-bottom:1px solid #e5e5e5}
@@ -1457,7 +1457,7 @@ hr{margin-top:20px;margin-bottom:20px;border:0;border-top:1px solid #eee}
 .less-team img{float:left;width:32px;margin-right:10px;border-radius:4px}
 .docs-section table{margin-bottom:20px}
 .docs-section td{padding:0 10px 5px 0}
-.docs-content{background:#fff;padding:1px 20px 20px 30px;margin:0 -15px 10px;border:none;border-radius:0 0 4px 4px;-webkit-box-shadow:0 2px 4px rgba(0,0,0,.2);box-shadow:0 2px 4px rgba(0,0,0,.2)}
+.docs-content{background:#fff;padding:1px 20px 20px 30px;margin:0 -15px 10px;border:none;border-radius:0 0 4px 4px;-webkit-box-shadow:0 2px 4px rgba(0,0,0,.2);box-shadow:0 2px 4px rgba(0,0,0,.2);min-height: 50%}
 .docs-content .container-fluid{padding:0}
 .docs-section+.docs-section{padding-top:40px}
 .sidebar{display:none}
