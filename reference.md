@@ -1,6 +1,6 @@
 ---
 layout: copy
-title: 哎呦喂！！！
+title: 外链
 date: 2017-04-01 13:15:15 +0800
 permalink: /reference/
 ---
