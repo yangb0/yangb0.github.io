@@ -1,5 +1,5 @@
 # Site settings
-name: yang的博客
+name: 楊的博客
 email: ""
 author: yang
 url: http://yangb0.github.io
@@ -17,11 +17,11 @@ paginate: 8
 paginate_path: "page:num"
 gems: [jekyll-paginate]
 exclude: ['README.md', 'Gemfile.lock', 'Gemfile', 'Rakefile']
-github_username: maoxiaoke
+github_username: yang
 highlighter: rouge
 markdown: kramdown
 FB:
   comments :
     provider : disqus
     disqus :
-        short_name : xiaokedada
+        short_name : yang
