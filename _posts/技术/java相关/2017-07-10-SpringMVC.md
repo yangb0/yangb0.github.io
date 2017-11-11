@@ -2,7 +2,7 @@
 layout: post
 title: SpringMVC工作原理
 date: 2017-07-10 
-categories: 技术
+categories: java
 tag: SpringMVC 
 ---
 * content
