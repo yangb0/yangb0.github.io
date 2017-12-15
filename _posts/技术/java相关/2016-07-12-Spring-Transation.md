@@ -1,7 +1,7 @@
 ---
 layout: post
 title: spring事务的传播机制和隔离级别
-date: 2017-07-12 
+date: 2016-07-12 
 categories: java
 tag: spring事务,spring 
 ---
