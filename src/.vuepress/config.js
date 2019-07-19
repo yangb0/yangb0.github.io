@@ -76,8 +76,8 @@ module.exports = {
 
     comments: {
       platform: 'github',
-      owner: 'meteorlxy',
-      repo: 'meteorlxy.github.io',
+      owner: 'yang',
+      repo: 'yangb0.github.io',
       clientId: '960bbc7e80512b06153e',
       clientSecret: 'd63ad26efd7e29fc5a9533742d7fc5c88347b6ba',
       prefix: '[Comments] ',
