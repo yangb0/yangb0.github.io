@@ -2,12 +2,11 @@
 layout: post
 title: SpringMVC工作原理
 date: 2016-07-10 
-categories: java
+category: java
 tags:
   - SpringMVC 
 ---
-* content
-{:toc}
+
 
  Spring的模型-视图-控制器（MVC）框架是围绕一个DispatcherServlet来设计的，这个Servlet会把请求分发给各个处理器，并支持可配置的处理器映射、视图渲染、本地化、时区与主题渲染等，甚至还能支持文件上传。
  

@@ -2,13 +2,14 @@
 layout: post
 title: spring事务的传播机制和隔离级别
 date: 2016-07-12 
-categories: java
+category: java
 tags:
   - spring事务
   - spring
+  
+
 ---
-* content
-{:toc}
+
 
   事务是逻辑处理原子性的保证手段，通过使用事务控制，可以极大的避免出现逻辑处理失败导致的脏数据等问题。
 
