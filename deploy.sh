@@ -3,6 +3,9 @@
 # 终止一个错误
 set -e
 
+#删除dist目录
+rm -rf dist
+
 # 构建
 yarn
 
