@@ -4,7 +4,7 @@ title: screen窗口设置title被重置问题
 date: 2019-07-23 
 category: 服务器
 tags: 
- 	- 设置title被重置
+  - screen
 ---
 
    在某些Linux机器上，开启screen后，当设置了tab的title（Ctrl+a Shift+a）后，输入任意命令，tab title会被重置为机器名称。
