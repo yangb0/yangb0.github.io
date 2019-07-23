@@ -4,7 +4,6 @@ title: screen窗口设置title被重置问题
 date: 2019-07-23 
 category: 服务器
 tags: 
- 	- screen
  	- 设置title被重置
 ---
 
