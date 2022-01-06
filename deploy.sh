@@ -5,9 +5,16 @@ set -e
 
 #删除dist目录
 rm -rf dist
+
+#提交
 git add -A
 git commit -m 'init'
+
+#push到github
 git push
+
+#push到gitee
+git push gitee
 # 构建
 yarn
 
