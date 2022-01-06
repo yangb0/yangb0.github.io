@@ -5,7 +5,9 @@ set -e
 
 #删除dist目录
 rm -rf dist
-
+git add -A
+git commit -m 'init'
+git push
 # 构建
 yarn
 
