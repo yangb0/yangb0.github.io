@@ -5,7 +5,7 @@
 
 My Homepage Repo
 
-Powered by [Vuepress](https://vuepress.vuejs.org/)
+Powered by [yang](https://yangb0.github.io/)
 
 Themed by [vuepress-theme-meteorlxy](https://github.com/meteorlxy/vuepress-theme-meteorlxy)
 
