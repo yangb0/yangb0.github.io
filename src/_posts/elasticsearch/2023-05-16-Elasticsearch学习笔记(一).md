@@ -14,7 +14,7 @@ tags:
  <!-- more -->
 
 ## ES核心概念
-​	ElasticSearch是面向文档（document oriented）的，这意味着它可以存储整个对象或文档(document)。然而它不仅仅是存储，还会索引（index）每个文档的内容使之可以被搜索。在Elasticsearch中，你可以对文档（而非成行成列的数据）进行索引，搜索、排序、过滤。
+​	ElasticSearch是面向文档（document oriented）的，这意味着它可以存储整个对象或文档(document)。然而它不仅仅是存储，还会索引（index）每个文档的内容使之可以被搜索。在Elasticsearch中，你可以对文档（而非成行成列的数据）进行索引，搜索、排序、过滤 。
 
 ### es与关系型数据库对比
 
