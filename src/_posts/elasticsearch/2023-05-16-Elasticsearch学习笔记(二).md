@@ -92,3 +92,17 @@ services:
   到此我们就完成了Elasticsearch环境的安装工作,访问服务器地址加端口号   http://ip:5601即可访问到Kibana进行操作
 
 # Elasticsearch基础操作
+
+## 索引操作
+
+1.创建索引
+
+![image-20230608153317060](.\assets\img\image-20230608153317060.png)
+
+2.查看索引
+
+
+
+
+
+## 文档操作
