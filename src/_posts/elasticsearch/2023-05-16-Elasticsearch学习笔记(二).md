@@ -1,7 +1,7 @@
 ---
 layout: post
 title: ElasticSearch学习笔记(二) Elasticsearch安装及基础操作
-date: 2023-05-17 
+date: 2023-06-08 
 category: elasticsearch
 tags:
   - ElasticSearch 
