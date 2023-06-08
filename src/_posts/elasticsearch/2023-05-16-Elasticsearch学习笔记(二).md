@@ -95,14 +95,172 @@ services:
 
 ## 索引操作
 
-1.创建索引
+### 1.创建索引
 
-![image-20230608153317060](/assets/img/image-20230608153317060.png)
+在Kibana控制台中输入如下命令,并执行,如果创建的索引名称已经存在,会返回错误信息。
 
-2.查看索引
+```
+
+PUT product-test
+
+# 返回结果
+{
+  "acknowledged" : true, 
+  "shards_acknowledged" : true,
+  "index" : "product-test"
+}
+```
+
+| 字段                | 含义                                   |
+| ------------------- | -------------------------------------- |
+| acknowledged        | 索引操作是否成功: true-成功,false-失败 |
+| shards_acknowledged | 是否已成功将操作应用于所有相关的分片   |
+| index               | 索引名称                               |
 
 
 
+创建一个带有类型及字段的索引
+
+```
+PUT product-test
+{
+	"settings": {
+		"number_of_shards": 1,
+		"number_of_replicas": 1
+	},
+	"mappings": {
+		"properties": {
+			"id": {
+				"type": "long"
+			},
+			"name": {
+				"type": "text"
+			},
+			"image": {
+				"type": "keyword"
+			},
+			"price": {
+				"type": "double"
+			},
+			"quantity":{
+			  "type":"integer"
+			}
+		}
+	}
+}
+```
+
+​		这里我们创建了一个分片数和副本数都为1的索引,里面包含5个字段: id, 商品名称(name)，商品图片（image)，商品价格（price), 库存数量(quantity)，类型各不相同。
+
+​	在实际使用中分片数和副本数需要综合考虑数据集的大小，Elasticsearch节点数量和可用性等因素。
+
+​	对于分片数，一般建议将其限制在节点数的3倍以内。如果数据集的大小有限制且严格定义，可以只使用一个分片。而对于节点数量超过10个的情况，需要配置10个分片。需要注意的是，分片副本也会占用空间，因此需要适当配置副本数以平衡高可用性和存储需求。
+
+​	对于副本数，一方面需要考虑高可用性和容灾，不要将同一个分片和副本放在同一个节点上。另一方面，副本数可以参数请求流量的QPS等参数，可以适当提高副本数以提高读性能。需要注意的是，过度分配分片和副本可能会影响性能和存储需求，因此需要谨慎选择。
+
+总之，在选择分片数和副本数时，需要综合考虑数据集大小、节点数量和可用性等因素，并遵循上述建议以平衡性能和存储需求。
 
 
-## 文档操作
+
+### 2.查看索引
+
+#查询所有索引
+GET /_cat/indices?v
+
+```
+#查看单个索引
+
+GET product-test
+
+# 返回结果
+{
+  "product-test" : {
+    "aliases" : { },
+    "mappings" : { },
+    "settings" : {
+      "index" : {
+        "routing" : {
+          "allocation" : {
+            "include" : {
+              "_tier_preference" : "data_content"
+            }
+          }
+        },
+        "number_of_shards" : "1",
+        "provided_name" : "product-test",
+        "creation_date" : "1686209323359",
+        "number_of_replicas" : "1",
+        "uuid" : "gk1bWBr-SQSOdkikbqbZnA",
+        "version" : {
+          "created" : "7120099"
+        }
+      }
+    }
+  }
+}
+```
+
+| 字段               | 含义                                     |
+| ------------------ | ---------------------------------------- |
+| aliases            | 别名                                     |
+| number_of_shards   | 主分片数量                               |
+| number_of_replicas | 副本分片数量                             |
+| version            | 当前索引的版本,每一次修改,版本会跟着变化 |
+
+获取索引中所有类型的字段信息
+
+```
+GET product-test/_mapping
+
+#返回结果
+{
+  "product-test" : {
+    "mappings" : {
+      "properties" : {
+        "id" : {
+          "type" : "long"
+        },
+        "name" : {
+          "type" : "text"
+        },
+        "picture_url" : {
+          "type" : "keyword"
+        },
+        "price" : {
+          "type" : "double"
+        },
+        "quantity" : {
+          "type" : "integer"
+        }
+      }
+    }
+  }
+}
+
+```
+
+
+
+### 3.打开/关闭索引
+
+```
+#关闭索引
+POST product-test/_close
+
+#开启索引
+POST product-test/_open
+```
+
+ 被关闭的索引是无法对索引的文档进行操作的
+
+### 4.删除索引
+
+```
+DELETE product-test
+
+#返回
+{
+  "acknowledged" : true
+}
+
+```
