@@ -1,6 +1,6 @@
 ---
 layout: post
-title: ElasticSearch学习笔记(二) Elasticsearch安装及基础操作
+title: ElasticSearch学习笔记(二) Elasticsearch安装及索引基础操作
 date: 2023-06-08 
 category: elasticsearch
 tags:
@@ -150,7 +150,7 @@ PUT product-test
 }
 ```
 
-​		这里我们创建了一个分片数和副本数都为1的索引,里面包含5个字段: id, 商品名称(name)，商品图片（image)，商品价格（price), 库存数量(quantity)，类型各不相同。
+​		这里我们创建了一个分片数和副本数都为1的索引,里面包含5个字段:  商品名称(name)，商品图片（image)，商品价格（price), 库存数量(quantity)，类型各不相同。
 
 ​	在实际使用中Elasticsearch的分片和副本数的选择应该考虑以下几个因素：
 
@@ -225,9 +225,6 @@ GET product-test/_mapping
   "product-test" : {
     "mappings" : {
       "properties" : {
-        "id" : {
-          "type" : "long"
-        },
         "name" : {
           "type" : "text"
         },
@@ -272,3 +269,4 @@ DELETE product-test
 }
 
 ```
+
