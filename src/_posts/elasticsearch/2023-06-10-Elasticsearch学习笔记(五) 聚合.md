@@ -1,7 +1,7 @@
 ---
 layout: post
-title: ElasticSearch学习笔记(五) 动态聚合
-date: 2023-06-10 
+title: ElasticSearch学习笔记(五) 聚合
+date: 2023-06-13 
 category: elasticsearch
 tags:
   - ElasticSearch 
@@ -23,21 +23,26 @@ Elasticsearch 中支持的聚合类型包括以下几种：
 
 Bucket 聚合是一种根据某些条件将文档分为不同分组的聚合方式。常见的 Bucket 聚合包括：
 
-- Term Aggregation：根据指定字段的值进行分组。
-- Range Aggregation：根据指定范围进行分组，比如价格在 0~100、100~500 等。
-- Date Histogram Aggregation：根据指定时间间隔进行分组。
-- Geo Distance Aggregation：根据指定的位置信息和距离进行分组。
+- Terms：按照文档中某个字段进行分组，类似于 SQL 中的 group by 语句。
+- Range：按照某个范围将文档进行分组，比如按照价格区间分组。
+- Date Histogram：按照日期进行分组，比如按照月份或者年份分组。
+- Geo Distance：按照地理距离进行分组。
+- Filters：按照多个条件进行分组。
 
 ### 2. Metric 聚合
 
-Metric 聚合是一种用于计算指标的聚合方式，常见的 Metric 聚合包括：
+Metric 聚合是一种用于计算指标的聚合方式，例如平均值、求和、最大值、最小值以及标准差等。常见的 Metric 聚合包括：
 
-- Sum Aggregation：计算指定字段的总和。
-- Avg Aggregation：计算指定字段的平均值。
-- Max Aggregation：计算指定字段的最大值。
-- Min Aggregation：计算指定字段的最小值。
-- Stats Aggregation：同时计算指定字段的总数、平均值、最大值、最小值等多种指标。
-- Percentiles Aggregation：计算指定字段的百分位数。
+- `avg` 聚合：计算数值型字段的平均值。
+- `sum` 聚合：计算数值型字段的总和。
+- `max` 聚合：找出数值型字段中的最大值。
+- `min` 聚合：找出数值型字段中的最小值。
+- `stats` 聚合：计算数值型字段的统计信息，包括平均值、总和、最大值、最小值和样本数等。
+- `extended_stats` 聚合：在 `stats` 聚合的基础上，还计算标准差和方差等更详细的统计信息。
+- `cardinality` 聚合：计算某个字段中不同值的数量。
+- `percentiles` 聚合：计算数值型字段的百分位数（例如中位数、四分位数等）。
+- `percentile_ranks` 聚合：计算数值型字段的百分位数排名。这个聚合操作可以用于确定一个值在整个数据集中的排名。
+- `value_count` 聚合：计算某个字段非空值的数量。
 
 ### 3. Pipeline 聚合
 
@@ -68,17 +73,12 @@ Elasticsearch 的聚合语法基于 JSON 格式来进行定义和配置。一个
 
 该聚合语句将所有文档按照 category.keyword 字段进行分组，并计算每个分组的文档数。
 
-## 动态聚合
-
-动态聚合是 Elasticsearch 聚合技术中的一种，它允许我们根据请求参数动态生成聚合语句，并将其应用于搜索结果，以实现多维度、多条件的数据分析和展示。相比于静态聚合，动态聚合更加灵活和可定制化，可以适应不同的业务需求和场景。
-
-动态聚合的实现方式基于 Elasticsearch 提供的查询 DSL，通过使用类似于 Mustache 模板的语法来动态生成聚合语句，然后将其应用于搜索结果。具体来说，动态聚合需要在请求参数中指定聚合类型、聚合字段、聚合选项等信息，然后将这些信息组合成一个聚合模板，通过解析模板和替换参数的方式生成聚合语句，最后将聚合语句应用于搜索结果。
-
 ### 示例
 
 假设我们已经创建了一个名为 `product-test` 的商品索引，并且该索引中包含以下四个字段：
 
 - 商品名称（name）
+- 品牌(brand)
 - 商品图片（image）
 - 商品价格（price）
 - 库存数量（quantity）
@@ -88,61 +88,42 @@ Elasticsearch 的聚合语法基于 JSON 格式来进行定义和配置。一个
 ```
 POST /product-test/_bulk
 { "index": { "_id": 1 }}
-{ "name": "苹果12 Pro Max", "image": "https://images.com/iphone12promax.jpg", "price": 4000, "quantity": 50 }
+{ "name": "苹果12 Pro Max","brand":"apple", "image": "https://images.com/iphone12promax.jpg", "price": 4000, "quantity": 50 }
 { "index": { "_id": 2 }}
-{ "name": "Samsung Galaxy S21 Ultra", "image": "https://images.com/SamsungS21.jpg", "price": 5200, "quantity": 100 }
+{ "name": "Samsung Galaxy S21 Ultra","brand":"三星", "image": "https://images.com/SamsungS21.jpg", "price": 6200, "quantity": 100 }
 { "index": { "_id": 3 }}
-{ "name": "苹果14 Mini", "image": "https://images.com/iphone14mini.jpg", "price": 5999, "quantity": 200 }
+{ "name": "苹果14 Mini", "brand":"apple","image": "https://images.com/iphone14mini.jpg", "price": 6999, "quantity": 200 }
 { "index": { "_id": 4 }}
-{ "name": "苹果14 Pro Max", "image": "https://images.com/iphone12promax.jpg", "price": 8999, "quantity": 250 }
+{ "name": "苹果14 Pro Max", "brand":"apple","image": "https://images.com/iphone12promax.jpg", "price": 8999, "quantity": 250 }
 { "index": { "_id": 5 }}
-{ "name": "华为Mate 40 Pro", "image": "https://images.com/HuaweiMate40.jpg", "price": 5999, "quantity": 50 }
+{ "name": "华为Mate 40 Pro", "brand":"华为","image": "https://images.com/HuaweiMate40.jpg", "price": 5999, "quantity": 50 }
 { "index": { "_id": 6 }}
-{ "name": "小米14", "image": "https://images.com/xiaomi14.jpg", "price": 5999, "quantity": 50 }
+{ "name": "小米14", "brand":"小米","image": "https://images.com/xiaomi14.jpg", "price": 5999, "quantity": 50 }
 ```
 
-我们按照商品价格（price）范围的聚合,执行如下命令
+我们使用terms(相当于SQL中的group by语句)将所有数据按照品牌分组,执行一下命令
 
 ```
-
 POST /product-test/_search
 {
-  "query": {
-    "match_all": {}
-  },
   "aggs": {
-    "dynamic_aggs": {
-      "range": {
-        "field": "price",
-        "ranges": [
-          {
-            "from": 0,
-            "to": 5000
-          },
-          {
-            "from": 5001,
-            "to": 8000
-          },
-          {
-            "from": 8001,
-            "to": 12000
-          }
-        ]
-      }
+    "brand_bucket":{
+       "terms": {         
+       "field": "brand"    
+     }
     }
   }
 }
-
-
 ```
 
-我们搜索时候将价格分成了三个区间（0~5000、5001~8000、8001~12000），并计算每个区间内的文档数量。
+- `"aggs"`：表示聚合操作，用于指定需要对哪些字段进行分析。
+- `"brand_bucket"`：聚合操作的名称，可以自定义。在这个示例中，我们使用了 `terms` 聚合操作，将文档根据 `brand` 字段进行分组，然后对每个品牌出现的文档数量进行计数。
 
 返回结果
 
-![image-20230612173921469](/assets/img/image-20230612173921469.png)
+![image-20230613113011178](/assets/img/image-20230613113011178.png)
 
-上述查询结果中，我们可以看到聚合操作的结果 `dynamic_aggs`。其中，每个区间的数量存储在 `doc_count` 字段中，表示该区间内有多少文档满足条件。
+上述查询结果中，我们可以看到聚合操作的结果 `brand_bucket`，其中 `buckets` 数组内包含了所有的计数信息，包括品牌名称 (`key`) 和出现的文档数量 (`doc_count`)。
 
 
 
