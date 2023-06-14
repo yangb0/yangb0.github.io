@@ -178,7 +178,7 @@ GET logs/_search
 
 1. 添加别名：使用 _aliases API 可以将一个或多个索引添加到新的别名中，例如：
 
-```
+```json
 POST /_aliases
 {
   "actions": [
@@ -191,7 +191,7 @@ POST /_aliases
 
 1. 删除别名：要删除别名，请使用 _aliases API 并指定要移除的别名和索引名称，例如：
 
-```
+```json
 POST /_aliases
 {
   "actions": [
@@ -204,7 +204,7 @@ POST /_aliases
 
 1. 更新别名：要将现有别名更新为新的索引，请使用 _aliases API 并指定要添加和删除的索引，例如：
 
-```
+```json
 POST /_aliases
 {
   "actions": [
@@ -218,7 +218,7 @@ POST /_aliases
 
 1. 灰度发布：别名还可以用于实现平滑的索引版本升级。具体来说，我们可以使用别名分配新版本的索引，并逐步移除旧版本的索引，例如：
 
-```
+```json
 POST /_aliases
 {
   "actions": [
