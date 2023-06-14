@@ -119,7 +119,7 @@ GET logs-20230613/_search
 
 在使用索引模板时，可以也通过修改模板来自动更新现有的索引。例如，如果要添加一个新字段，可以简单地修改索引模板并将其应用到现有索引。我们往前面的模板中增加一个`msg`字段，不用修改原有模板及索引直接执行一下命令
 
-```
+```json
 PUT _index_template/template_1
 {
   "index_patterns": ["logs-*"],
@@ -159,7 +159,7 @@ PUT _index_template/template_1
 
 我们再往索引`logs-20230613`中添加数据，数据中新增一个`msg`的数据
 
-```
+```json
 POST /logs-20230613/_bulk
 { "index": {}}
 { "user_id": 1,"operate":"登录","msg":"成功","timestamp": "2023-06-13 10:09:50" }
@@ -169,7 +169,7 @@ POST /logs-20230613/_bulk
 
 我们再来查询索引`logs-20230613`中的数据可以看到新的数据多了`msg`的字段
 
-```
+```json
 {
   "took" : 0,
   "timed_out" : false,
