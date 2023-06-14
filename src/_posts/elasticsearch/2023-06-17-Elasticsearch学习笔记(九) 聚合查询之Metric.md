@@ -1,7 +1,7 @@
 ---
 layout: post
-title: ElasticSearch学习笔记(七) 聚合查询之Metric
-date: 2023-06-15 
+title: ElasticSearch学习笔记(九) 聚合查询之Metric
+date: 2023-06-17 
 category: elasticsearch
 tags:
   - ElasticSearch 

@@ -1,7 +1,7 @@
 ---
 layout: post
-title: ElasticSearch学习笔记(六) 聚合之Bucket详解
-date: 2023-06-14 
+title: ElasticSearch学习笔记(八) 聚合之Bucket详解
+date: 2023-06-16 
 category: elasticsearch
 tags:
   - ElasticSearch 

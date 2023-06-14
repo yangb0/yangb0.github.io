@@ -1,7 +1,7 @@
 ---
 layout: post
-title: ElasticSearch学习笔记(五) 聚合
-date: 2023-06-13 
+title: ElasticSearch学习笔记(七) 聚合
+date: 2023-06-16 
 category: elasticsearch
 tags:
   - ElasticSearch 
