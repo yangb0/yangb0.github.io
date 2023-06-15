@@ -17,7 +17,7 @@ Pipeline聚合通常用于对先前聚合结果进行某些额外的操作，例
 
 要使用Pipeline聚合，需要首先定义一些聚合操作作为Pipeline的一部分，然后将其添加到Elasticsearch的聚合查询中，并在聚合操作中引用它们。例如，我们可以使用Pipeline聚合计算商品库存总量：
 
-```
+```json
 POST /product-test/_search
 {
   "size": 0,
