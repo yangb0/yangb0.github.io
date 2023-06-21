@@ -114,7 +114,20 @@ POST /_search/scroll
 ```
 
 过了缓存时间会抛出如下异常
- Elasticsearch exception [type=search_context_missing_exception, reason=No search context found for id [3344636]
+
+```json
+{
+  "error" : {
+    "root_cause" : [
+      {
+        "type" : "search_context_missing_exception",
+        "reason" : "No search context found for id [684521]"
+      }
+    ],
+    ....
+```
+
+
 
 ## 清除scroll
 
