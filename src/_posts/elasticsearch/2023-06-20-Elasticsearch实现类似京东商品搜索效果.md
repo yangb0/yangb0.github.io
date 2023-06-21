@@ -1,7 +1,7 @@
 ---
 layout: post
-title: ElasticSearch学习笔记(十) 聚合查询之pipeline
-date: 2023-06-18 
+title: ElasticSearch实现类似京东商品搜索效果
+date: 2023-06-20 
 category: elasticsearch
 tags:
   - ElasticSearch 
