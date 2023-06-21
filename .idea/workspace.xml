@@ -5,7 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="76ee29c5-2cf4-4387-9fb3-32790809177a" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/_posts/elasticsearch/2023-06-19-Elasticsearch实现类似京东商品搜索效果.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/_posts/elasticsearch/2023-06-19-Elasticsearch深度分页详解.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/_posts/elasticsearch/2023-06-19-Elasticsearch深度分页详解.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,7 +41,9 @@
       <option name="presentableId" value="Default" />
       <updated>1686296489257</updated>
       <workItem from="1686296491596" duration="10094000" />
-      <workItem from="1686722749372" duration="6373000" />
+      <workItem from="1686722749372" duration="10893000" />
+      <workItem from="1687240576532" duration="388000" />
+      <workItem from="1687241024933" duration="1710000" />
     </task>
     <servers />
   </component>
