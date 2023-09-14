@@ -7,7 +7,7 @@ tags:
   - ElasticSearch 
 ---
 
-​	Elasticsearch的Metric聚合主要用于统计在某个字段中的最大、最小、平均数、和、标准差等数值型数据统计指标。下面让我们详细介绍Metric聚合的使用方法，并给出一个完整的示例。
+Elasticsearch的Metric聚合主要用于统计在某个字段中的最大、最小、平均数、和、标准差等数值型数据统计指标。下面让我们详细介绍Metric聚合的使用方法，并给出一个完整的示例。
 
 ## Metric聚合
 
