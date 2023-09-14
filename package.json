@@ -5,8 +5,8 @@
   "author": "yang <yangbo@live.cn>",
   "license": "MIT",
   "scripts": {
-    "dev": "vuepress dev src --temp ./.temp",
-    "build": "vuepress build src -d ./dist --temp ./.temp"
+    "dev": "SET NODE_OPTIONS=--openssl-legacy-provider && vuepress dev src --temp ./.temp",
+    "build": "SET NODE_OPTIONS=--openssl-legacy-provider && vuepress build src -d ./dist --temp ./.temp"
   },
   "repository": {
     "type": "git",
