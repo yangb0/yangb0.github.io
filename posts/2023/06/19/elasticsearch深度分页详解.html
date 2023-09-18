@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>ElasticSearch深度分页问题详解 | yang的博客</title>
+    <meta name="description" content="yang的博客">
+    <link rel="icon" href="/assets/img/avatar.jpg">
+    
+    <link rel="preload" href="/assets/css/3.styles.672efb23.css" as="style"><link rel="preload" href="/assets/js/vendor.2.672efb23.js" as="script"><link rel="preload" href="/assets/js/vendor.1.3967ac5f.js" as="script"><link rel="preload" href="/assets/css/0.styles.4df80900.css" as="style"><link rel="preload" href="/assets/js/vendor.0.4df80900.js" as="script"><link rel="preload" href="/assets/js/app.a8b8daa8.js" as="script"><link rel="preload" href="/assets/js/16.b7a2ccfa.js" as="script"><link rel="prefetch" href="/assets/css/4.styles.3b621091.css"><link rel="prefetch" href="/assets/js/10.8478bdff.js"><link rel="prefetch" href="/assets/js/11.ee26bcc0.js"><link rel="prefetch" href="/assets/js/12.55cc93a1.js"><link rel="prefetch" href="/assets/js/13.acefd014.js"><link rel="prefetch" href="/assets/js/14.73204498.js"><link rel="prefetch" href="/assets/js/15.259a8f6b.js"><link rel="prefetch" href="/assets/js/17.91927fe4.js"><link rel="prefetch" href="/assets/js/18.31d42ce8.js"><link rel="prefetch" href="/assets/js/19.5779d05f.js"><link rel="prefetch" href="/assets/js/20.0f83e315.js"><link rel="prefetch" href="/assets/js/21.e5ef8958.js"><link rel="prefetch" href="/assets/js/22.9ef640bd.js"><link rel="prefetch" href="/assets/js/23.3f7faed0.js"><link rel="prefetch" href="/assets/js/24.010d36ab.js"><link rel="prefetch" href="/assets/js/25.e648bc8e.js"><link rel="prefetch" href="/assets/js/26.7ec4c43f.js"><link rel="prefetch" href="/assets/js/27.ca7ce5ff.js"><link rel="prefetch" href="/assets/js/28.b471d502.js"><link rel="prefetch" href="/assets/js/4.3b621091.js"><link rel="prefetch" href="/assets/js/5.070e33ea.js"><link rel="prefetch" href="/assets/js/6.d4b3b4c1.js"><link rel="prefetch" href="/assets/js/7.44b1e335.js"><link rel="prefetch" href="/assets/js/8.5e5bb804.js"><link rel="prefetch" href="/assets/js/9.a3b29316.js">
+    <link rel="stylesheet" href="/assets/css/3.styles.672efb23.css"><link rel="stylesheet" href="/assets/css/0.styles.4df80900.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div id="vuepress-theme-meteorlxy"><header class="header" data-v-0539f1bd><div data-v-39c72c19 data-v-0539f1bd><nav class="navbar" data-v-39c72c19><div class="container" data-v-39c72c19><a href="/" class="router-link-active" data-v-39c72c19><span class="navbar-site-name" data-v-39c72c19>
+          yang的博客
+        </span></a> <div class="navbar-toggler" data-v-39c72c19><svg class="icon" style="font-size:1.2em;" data-v-39c72c19 data-v-39c72c19><title data-v-39c72c19 data-v-39c72c19>menu</title><use xlink:href="#icon-menu" data-v-39c72c19 data-v-39c72c19></use></svg></div> <div class="navbar-links" data-v-39c72c19><a href="/" class="navbar-link" data-v-39c72c19>
+            主页
+          </a><a href="/posts/" class="navbar-link router-link-active" data-v-39c72c19>
+            文章
+          </a></div></div></nav> <div class="navbar-holder" style="display:none;" data-v-39c72c19></div></div> <div class="banner" data-v-98d6aa8c data-v-0539f1bd data-v-0539f1bd><div class="container" data-v-98d6aa8c><div class="center" data-v-98d6aa8c><h1 data-v-98d6aa8c data-v-0539f1bd>
+          ElasticSearch深度分页问题详解
+        </h1></div></div></div></header> <div class="container clearfix show-aside" data-v-6cd81e6a data-v-6cd81e6a><main class="main" data-v-6cd81e6a><div class="post" data-v-6cd81e6a data-v-6cd81e6a><section class="post-meta main-div" data-v-4e23451f><section class="post-date clearfix" data-v-4e23451f><span class="create-date" data-v-4e23451f>
+      发布时间 : 2023-06-19
+    </span> <!----></section> <section class="post-links" data-v-4e23451f><a href="/posts/2023/06/18/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%8D%81-%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2%E4%B9%8Bpipline.html" class="post-link" data-v-4e23451f>
+      上一篇 : ElasticSearch学习笔记(十) 聚合查询之pipeline
+    </a> <a href="/posts/2023/07/06/elasticsearch%E6%90%9C%E7%B4%A2%E5%BB%BA%E8%AE%AE%E8%AF%A6%E8%A7%A3.html" class="post-link" data-v-4e23451f>
+      下一篇 : elasticsearch搜索建议详解
+    </a></section></section> <article class="main-div"><div class="post-content content content__default"><p>对于许多需要处理大数据量的业务场景而言，分页查询是一项十分重要的功能。Elasticsearch 作为目前流行的开源搜索引擎，在数据检索方面也提供了丰富的分页查询支持。</p> <h1 id="基本分页查询"><a href="#基本分页查询" aria-hidden="true" class="header-anchor">#</a> 基本分页查询</h1> <p>在 Elasticsearch 中进行基本的分页查询，通常使用 <code>from</code> 和 <code>size</code> 两个参数，它们分别表示从第几条数据开始查询和查询多少条数据。具体来说，<code>from</code> 表示要跳过的文档数量，而 <code>size</code> 表示每页返回的文档数量。下面是一个简单的例子：</p> <div class="language- extra-class"><pre class="language-text"><code>GET /my_index/_search
+{
+    &quot;from&quot;: 0,
+    &quot;size&quot;: 10,
+    &quot;query&quot;: {
+        &quot;match_all&quot;: {}
+    }
+}
+</code></pre></div><p>上述查询将会返回从第 0 条开始的 10 条数据。在进行一些数据量不是特别大的查询时这种方式是比较简单实用的。但是当我们数据量比较大需要查询10000条以后的数据时Elasticsearch会返回错误信息。</p> <p>将上面命令中的<code>from</code>改为10000执行会返回以下信息</p> <div class="language-json extra-class"><pre class="language-json"><code><span class="token property">&quot;error&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;root_cause&quot;</span> <span class="token operator">:</span> <span class="token punctuation">[</span>
+      <span class="token punctuation">{</span>
+        <span class="token property">&quot;type&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;illegal_argument_exception&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;reason&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;Result window is too large, from + size must be less than or equal to: [10000] but was [10010]. See the scroll api for a more efficient way to request large data sets. This limit can be set by changing the [index.max_result_window] index level setting.&quot;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;type&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;search_phase_execution_exception&quot;</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;reason&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;all shards failed&quot;</span><span class="token punctuation">,</span>
+    ......
+</code></pre></div><p>出现以上问题是因为Elasticsearch限制了深度分页，在 Elasticsearch 中，<code>max_result_window</code> 参数用于限制查询结果的最大返回数量。默认情况下，<code>max_result_window</code> 的值为 10000，即查询结果最多只能返回 10000 条数据。如果查询结果的数量超过这个限制，则 Elasticsearch 会抛出异常并拒绝查询请求。</p> <p>我们可以通过指定<code>max_result_window</code>来解决上面的问题,例如:</p> <div class="language-json extra-class"><pre class="language-json"><code>PUT /my_index/_settings
+<span class="token punctuation">{</span> 
+    <span class="token property">&quot;index&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span> 
+        <span class="token property">&quot;max_result_window&quot;</span> <span class="token operator">:</span> <span class="token number">20000</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>但是这样并不能解决根本问题，如果我们只是修改<code>max_result_window</code>参数，当数据量越来越大，分页也越来越深，达到一定数据量的时候Elasticsearch可能会出现OOM的问题。</p> <h2 id="为什么会出现oom问题"><a href="#为什么会出现oom问题" aria-hidden="true" class="header-anchor">#</a> 为什么会出现OOM问题?</h2> <p>Elasticsearch是分布式的，数据分布在各个节点上，当某个节点接收到客户端查询请求的时候，它会把请求广播到其他节点，接收客户端请求的这个节点称之为请求节点（requesting node），它负责收集汇总其他节点的数据。当一个节点接收到分页查询请求时，它会将请求转发给其它节点，然后等待其它节点返回自己所要求的文档结果。当所有分片的文档结果都返回后，节点会对这些结果进行排序，最后返回按照 <code>from</code> 和 <code>size</code> 参数指定的数量的文档结果。如果一次查询的结果集非常大，那么每个节点都需要对大量的文档结果进行排序和加载到内存中，容易出现内存溢出的问题。</p> <h1 id="scroll-api-分页查询"><a href="#scroll-api-分页查询" aria-hidden="true" class="header-anchor">#</a> Scroll API 分页查询</h1> <p>为了满足深度分页的场景，Elasticsearch提供了scroll的方式进行分页读取。scroll分页类似关系型数据库中的cursor(游标)，初次查询时会将所有复核搜索条件的数据的_id排序后存储在上下文，类似于快照，同时在返回结果中会返回一个<code>_scroll_id</code>字段。在之后的每次查询通过scroll_id访问快照实现快速查询需要的数据，有效降低查询和存储的性能损耗。</p> <h2 id="初始化scroll查询："><a href="#初始化scroll查询：" aria-hidden="true" class="header-anchor">#</a> 初始化scroll查询：</h2> <p>初次请求，要在url中的search后加上<code>scroll=1m，这个scroll=1m（1m代表1分钟），是缓存时间，客户端可以根据查询数据数量自定义缓存的时间</code></p> <div class="language-json extra-class"><pre class="language-json"><code>POST /my_index/_search?scroll=<span class="token number">1</span>m
+<span class="token punctuation">{</span>
+    <span class="token property">&quot;size&quot;</span><span class="token operator">:</span> <span class="token number">10</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;query&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token property">&quot;match_all&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+#返回结果
+<span class="token punctuation">{</span>
+  <span class="token property">&quot;_scroll_id&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;FGluY2x1ZGVfY29udGV4dF91dWlkDXF1ZXJ5QW5kRmV0Y2gBFnlUcmE2RjhmUmQ2Y3VNVmt3eUJVYkEAAAAAAApx6RZHSE9UajhIUFRiT0JoMmhkVV9JcFV3&quot;</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;took&quot;</span> <span class="token operator">:</span> <span class="token number">3</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;timed_out&quot;</span> <span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;_shards&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;total&quot;</span> <span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;successful&quot;</span> <span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;skipped&quot;</span> <span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;failed&quot;</span> <span class="token operator">:</span> <span class="token number">0</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;hits&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;total&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token property">&quot;value&quot;</span> <span class="token operator">:</span> <span class="token number">1024</span><span class="token punctuation">,</span>
+      <span class="token property">&quot;relation&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;gte&quot;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;max_score&quot;</span> <span class="token operator">:</span> <span class="token number">1.0</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;hits&quot;</span> <span class="token operator">:</span> <span class="token punctuation">[</span>
+      ...
+    <span class="token punctuation">]</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><h2 id="使用scroll-id滚动下一页"><a href="#使用scroll-id滚动下一页" aria-hidden="true" class="header-anchor">#</a> 使用scroll_id滚动下一页</h2> <p>使用每次得到的这个<code>_scroll_id</code>值，继续请求下一页，每次请求最好都带上scroll=1m刷新过期时间，以防超时报错，直到所有的结果都被读取：</p> <div class="language-json extra-class"><pre class="language-json"><code>POST /_search/scroll
+<span class="token punctuation">{</span>
+    <span class="token property">&quot;scroll&quot;</span><span class="token operator">:</span> <span class="token string">&quot;1m&quot;</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;scroll_id&quot;</span><span class="token operator">:</span> <span class="token string">&quot;FGluY2x1ZGVfY29udGV4dF91dWlkDXF1ZXJ5QW5kRmV0Y2gBFnlUcmE2RjhmUmQ2Y3VNVmt3eUJVYkEAAAAAAApx6RZHSE9UajhIUFRiT0JoMmhkVV9JcFV3&quot;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>过了缓存时间会抛出如下异常</p> <div class="language-json extra-class"><pre class="language-json"><code><span class="token punctuation">{</span>
+  <span class="token property">&quot;error&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;root_cause&quot;</span> <span class="token operator">:</span> <span class="token punctuation">[</span>
+      <span class="token punctuation">{</span>
+        <span class="token property">&quot;type&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;search_context_missing_exception&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;reason&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;No search context found for id [684521]&quot;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    ....
+</code></pre></div><h2 id="清除scroll"><a href="#清除scroll" aria-hidden="true" class="header-anchor">#</a> 清除scroll</h2> <p>这个<code>_scroll_id</code>在Elasticsearch的服务端是有缓存数量限制的，默认最大500，如果请求量大于这个值，会报错。因此除了自然过期之外，我们在处理完成本次请求后一般手动清除掉<code>_scroll_id</code>缓存，及早释放资源</p> <div class="language-json extra-class"><pre class="language-json"><code>DELETE /_search/scroll
+<span class="token punctuation">{</span>
+	<span class="token property">&quot;scroll_id&quot;</span><span class="token operator">:</span> <span class="token string">&quot;FGluY2x1ZGVfY29udGV4dF91dWlkDXF1ZXJ5QW5kRmV0Y2gBFnlUcmE2RjhmUmQ2Y3VNVmt3eUJVYkEAAAAAAApx6RZHSE9UajhIUFRiT0JoMmhkVV9JcFV3&quot;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>Scroll API 极其适用于需要大量数据的情况，例如在数据分析、日志监控等场景下。使用 Scroll API 不需要重复查询，并且您可以轻松地处理所有数据子集。缺点是这种方法需要更多的计算资源进行分页，因为Elasticsearch必须跟踪查询结果并保留状态。同时由于使用了快照的机制，对于实时变化的数据使用Scroll API可能无法体现数据的变化。</p> <h1 id="search-after分页"><a href="#search-after分页" aria-hidden="true" class="header-anchor">#</a> search_after分页</h1> <p>使用Scroll API进行分页时存在实时性问题，Elasticsearch提供了一种更高效的替代方案<code>search_after</code>分页。使用 <code>search_after</code> 时，您需要指定排序字段，在检索下一页时，您需要提供上一页的最后一条记录的值，然后检索值大于 <code>search_after</code> 参数的下一页结果。</p> <p>为了找到每一页最后一条数据，每个文档必须有一个全局唯一值，可以使用<code>_id</code> 作为全局唯一值，但是只要能表示其唯一性就可以。
+具体使用方式如下：</p> <div class="language-json extra-class"><pre class="language-json"><code>GET /my_index/_search
+<span class="token punctuation">{</span>
+  <span class="token property">&quot;query&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;match_all&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;size&quot;</span><span class="token operator">:</span> <span class="token number">10</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;sort&quot;</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span>
+      <span class="token property">&quot;_id&quot;</span><span class="token operator">:</span> <span class="token string">&quot;asc&quot;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>这样我们会得到一个数据列表，我们取列表中最后一条数据的<code>_id</code>当做<code>search_after</code>参数：</p> <div class="language-json extra-class"><pre class="language-json"><code>GET /my_index/_search
+<span class="token punctuation">{</span>
+  <span class="token property">&quot;query&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;match_all&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;size&quot;</span><span class="token operator">:</span> <span class="token number">10</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;search_after&quot;</span><span class="token operator">:</span><span class="token punctuation">[</span><span class="token string">&quot;VLJetHgBgBLvM6lrIFqW&quot;</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;sort&quot;</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span>
+      <span class="token property">&quot;_id&quot;</span><span class="token operator">:</span> <span class="token string">&quot;asc&quot;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>这样虽然能排序，但是使用起来不太友好，尤其是当文档中有时间字段时，查出来的数据以时间来衡量是乱糟糟的，因为你是根据<code>_id</code>排序的，而<code>_id</code>是随机字符串，没啥规律。其实我们可以根据多字段排序，比如先根据时间戳排序，当时间戳一样时再根据唯一字段<code>_id</code>排序，这样会大大提高用户体验，查询语法如下：</p> <div class="language-json extra-class"><pre class="language-json"><code>GET /my_index/_search
+<span class="token punctuation">{</span>
+  <span class="token property">&quot;query&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;match_all&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;size&quot;</span><span class="token operator">:</span> <span class="token number">10</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;sort&quot;</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span>
+      <span class="token property">&quot;timeline&quot;</span><span class="token operator">:</span> <span class="token string">&quot;desc&quot;</span><span class="token punctuation">,</span>
+      <span class="token property">&quot;_id&quot;</span><span class="token operator">:</span> <span class="token string">&quot;asc&quot;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+
+GET /my_index/_search
+<span class="token punctuation">{</span>
+  <span class="token property">&quot;query&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;match_all&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;size&quot;</span><span class="token operator">:</span> <span class="token number">10</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;search_after&quot;</span><span class="token operator">:</span><span class="token punctuation">[</span><span class="token number">1617932029578</span><span class="token punctuation">,</span> <span class="token string">&quot;VLJetHgBgBLvM6lrIFqW&quot;</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;sort&quot;</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span>
+      <span class="token property">&quot;timeline&quot;</span><span class="token operator">:</span> <span class="token string">&quot;desc&quot;</span><span class="token punctuation">,</span>
+      <span class="token property">&quot;_id&quot;</span><span class="token operator">:</span> <span class="token string">&quot;asc&quot;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p><code>search_after</code>不是自由跳转到随机页面而是并行滚动多个查询的解决方案。它与Scroll API非常相似，但与它不同，<code>search_after</code>参数是无状态的，它始终针对最新版本的搜索器进行解析。因此，排序顺序可能会发生变化，具体取决于索引的更新和删除。</p> <h1 id="总结"><a href="#总结" aria-hidden="true" class="header-anchor">#</a> 总结</h1> <p>在一般业务查询页面中，通常我们都是以10-20条数据为一页，10000条数据也就是500-1000页。正常情况下，对于用户来说，有极少需求翻到比较靠后的页码来查看数据，绝大多数情况下都会指定查询条件，搜索结果页会在前面几页甚至几十页就不会继续往后翻页了。因此在业务需求敲定初期，可以同业务人员商定1w条数据的限定，如果确实有需要查询超过1w条的情况可以借助导出数据到Excel表，在Excel表中做具体的操作，这种情况我们就可以使用Scroll或Search After分页方式，相比之下最好使用Search After方式，既可以保证数据的实时性，也具有很高的搜索性能。</p></div></article> <section class="post-meta main-div" data-v-4e23451f><section class="post-date clearfix" data-v-4e23451f><span class="create-date" data-v-4e23451f>
+      发布时间 : 2023-06-19
+    </span> <!----></section> <section class="post-links" data-v-4e23451f><a href="/posts/2023/06/18/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%8D%81-%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2%E4%B9%8Bpipline.html" class="post-link" data-v-4e23451f>
+      上一篇 : ElasticSearch学习笔记(十) 聚合查询之pipeline
+    </a> <a href="/posts/2023/07/06/elasticsearch%E6%90%9C%E7%B4%A2%E5%BB%BA%E8%AE%AE%E8%AF%A6%E8%A7%A3.html" class="post-link" data-v-4e23451f>
+      下一篇 : elasticsearch搜索建议详解
+    </a></section></section> <div id="post-comments" class="main-div"><!----></div></div></main> <aside class="aside" data-v-6cd81e6a><div class="info-card main-div" data-v-3da8ff8d data-v-6cd81e6a><div class="info-card-header" data-v-3da8ff8d><img src="/assets/img/avatar.jpg" alt="yang" class="info-avatar" data-v-3da8ff8d></div> <div class="info-card-body" data-v-3da8ff8d><section class="info-nickname" data-v-3da8ff8d>
+      yang
+    </section> <!----> <section class="info-contact" data-v-3da8ff8d><!----> <!----> <!----></section></div> <div class="info-card-footer" data-v-3da8ff8d><section class="info-sns clearfix" data-v-3da8ff8d></section></div></div> <div class="post-nav-card main-div" style="position:relative;top:0;width:0px;" data-v-6cd81e6a><div class="post-nav-contents"><svg class="icon"><title>book</title><use xlink:href="#icon-book"></use></svg> <span>文章目录</span> <div class="post-nav-toc"><ul><li><a href="/posts/2023/06/19/elasticsearch%E6%B7%B1%E5%BA%A6%E5%88%86%E9%A1%B5%E8%AF%A6%E8%A7%A3.html#为什么会出现oom问题">为什么会出现OOM问题?</a></li><li><a href="/posts/2023/06/19/elasticsearch%E6%B7%B1%E5%BA%A6%E5%88%86%E9%A1%B5%E8%AF%A6%E8%A7%A3.html#初始化scroll查询：">初始化scroll查询：</a></li><li><a href="/posts/2023/06/19/elasticsearch%E6%B7%B1%E5%BA%A6%E5%88%86%E9%A1%B5%E8%AF%A6%E8%A7%A3.html#使用scroll-id滚动下一页">使用scroll_id滚动下一页</a></li><li><a href="/posts/2023/06/19/elasticsearch%E6%B7%B1%E5%BA%A6%E5%88%86%E9%A1%B5%E8%AF%A6%E8%A7%A3.html#清除scroll">清除scroll</a></li></ul></div></div> <div class="post-nav-comments"><svg class="icon"><title>comment</title><use xlink:href="#icon-comment"></use></svg> <a href="/posts/2023/06/19/elasticsearch%E6%B7%B1%E5%BA%A6%E5%88%86%E9%A1%B5%E8%AF%A6%E8%A7%A3.html#post-comments">
+      评论
+    </a></div></div></aside></div> <footer class="footer" data-v-1114308c><p class="sns-links" data-v-1114308c></p> <p data-v-1114308c><span data-v-1114308c>Powered by </span> <a href="https://vuepress.vuejs.org" target="_blank" data-v-1114308c>
+      Vuepress
+    </a></p></footer></div><div class="global-ui"><!----><!----></div></div>
+    <script src="/assets/js/vendor.2.672efb23.js" defer></script><script src="/assets/js/16.b7a2ccfa.js" defer></script><script src="/assets/js/vendor.1.3967ac5f.js" defer></script><script src="/assets/js/vendor.0.4df80900.js" defer></script><script src="/assets/js/app.a8b8daa8.js" defer></script>
+  </body>
+</html>

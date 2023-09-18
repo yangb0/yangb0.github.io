@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>ElasticSearch学习笔记(十) 聚合查询之pipeline | yang的博客</title>
+    <meta name="description" content="yang的博客">
+    <link rel="icon" href="/assets/img/avatar.jpg">
+    
+    <link rel="preload" href="/assets/css/3.styles.672efb23.css" as="style"><link rel="preload" href="/assets/js/vendor.2.672efb23.js" as="script"><link rel="preload" href="/assets/js/vendor.1.3967ac5f.js" as="script"><link rel="preload" href="/assets/css/0.styles.4df80900.css" as="style"><link rel="preload" href="/assets/js/vendor.0.4df80900.js" as="script"><link rel="preload" href="/assets/js/app.a8b8daa8.js" as="script"><link rel="preload" href="/assets/js/15.259a8f6b.js" as="script"><link rel="prefetch" href="/assets/css/4.styles.3b621091.css"><link rel="prefetch" href="/assets/js/10.8478bdff.js"><link rel="prefetch" href="/assets/js/11.ee26bcc0.js"><link rel="prefetch" href="/assets/js/12.55cc93a1.js"><link rel="prefetch" href="/assets/js/13.acefd014.js"><link rel="prefetch" href="/assets/js/14.73204498.js"><link rel="prefetch" href="/assets/js/16.b7a2ccfa.js"><link rel="prefetch" href="/assets/js/17.91927fe4.js"><link rel="prefetch" href="/assets/js/18.31d42ce8.js"><link rel="prefetch" href="/assets/js/19.5779d05f.js"><link rel="prefetch" href="/assets/js/20.0f83e315.js"><link rel="prefetch" href="/assets/js/21.e5ef8958.js"><link rel="prefetch" href="/assets/js/22.9ef640bd.js"><link rel="prefetch" href="/assets/js/23.3f7faed0.js"><link rel="prefetch" href="/assets/js/24.010d36ab.js"><link rel="prefetch" href="/assets/js/25.e648bc8e.js"><link rel="prefetch" href="/assets/js/26.7ec4c43f.js"><link rel="prefetch" href="/assets/js/27.ca7ce5ff.js"><link rel="prefetch" href="/assets/js/28.b471d502.js"><link rel="prefetch" href="/assets/js/4.3b621091.js"><link rel="prefetch" href="/assets/js/5.070e33ea.js"><link rel="prefetch" href="/assets/js/6.d4b3b4c1.js"><link rel="prefetch" href="/assets/js/7.44b1e335.js"><link rel="prefetch" href="/assets/js/8.5e5bb804.js"><link rel="prefetch" href="/assets/js/9.a3b29316.js">
+    <link rel="stylesheet" href="/assets/css/3.styles.672efb23.css"><link rel="stylesheet" href="/assets/css/0.styles.4df80900.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div id="vuepress-theme-meteorlxy"><header class="header" data-v-0539f1bd><div data-v-39c72c19 data-v-0539f1bd><nav class="navbar" data-v-39c72c19><div class="container" data-v-39c72c19><a href="/" class="router-link-active" data-v-39c72c19><span class="navbar-site-name" data-v-39c72c19>
+          yang的博客
+        </span></a> <div class="navbar-toggler" data-v-39c72c19><svg class="icon" style="font-size:1.2em;" data-v-39c72c19 data-v-39c72c19><title data-v-39c72c19 data-v-39c72c19>menu</title><use xlink:href="#icon-menu" data-v-39c72c19 data-v-39c72c19></use></svg></div> <div class="navbar-links" data-v-39c72c19><a href="/" class="navbar-link" data-v-39c72c19>
+            主页
+          </a><a href="/posts/" class="navbar-link router-link-active" data-v-39c72c19>
+            文章
+          </a></div></div></nav> <div class="navbar-holder" style="display:none;" data-v-39c72c19></div></div> <div class="banner" data-v-98d6aa8c data-v-0539f1bd data-v-0539f1bd><div class="container" data-v-98d6aa8c><div class="center" data-v-98d6aa8c><h1 data-v-98d6aa8c data-v-0539f1bd>
+          ElasticSearch学习笔记(十) 聚合查询之pipeline
+        </h1></div></div></div></header> <div class="container clearfix show-aside" data-v-6cd81e6a data-v-6cd81e6a><main class="main" data-v-6cd81e6a><div class="post" data-v-6cd81e6a data-v-6cd81e6a><section class="post-meta main-div" data-v-4e23451f><section class="post-date clearfix" data-v-4e23451f><span class="create-date" data-v-4e23451f>
+      发布时间 : 2023-06-18
+    </span> <!----></section> <section class="post-links" data-v-4e23451f><a href="/posts/2023/06/17/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B9%9D-%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2%E4%B9%8Bmetric.html" class="post-link" data-v-4e23451f>
+      上一篇 : ElasticSearch学习笔记(九) 聚合查询之Metric
+    </a> <a href="/posts/2023/06/19/elasticsearch%E6%B7%B1%E5%BA%A6%E5%88%86%E9%A1%B5%E8%AF%A6%E8%A7%A3.html" class="post-link" data-v-4e23451f>
+      下一篇 : ElasticSearch深度分页问题详解
+    </a></section></section> <article class="main-div"><div class="post-content content content__default"><p>Pipeline聚合是Elasticsearch中的一种高级聚合，它允许在一个聚合结果上执行多个聚合操作，将多个聚合操作连接成一个聚合流水线序列，这些操作可以包括多种不同类型的聚合，例如统计、分组、过滤、计算等。</p> <p>Pipeline聚合通常用于对先前聚合结果进行某些额外的操作，例如计算平均值、标准偏差、百分比等。Pipeline聚合也可以再次嵌套使用，从而构建更加复杂和高级的聚合操作。</p> <p>下面我们来详细讨论一下Pipeline聚合的使用方法和示例：</p> <ol><li>在聚合查询中使用Pipeline聚合</li></ol> <p>要使用Pipeline聚合，需要首先定义一些聚合操作作为Pipeline的一部分，然后将其添加到Elasticsearch的聚合查询中，并在聚合操作中引用它们。例如，我们可以使用Pipeline聚合计算商品库存总量：</p> <div class="language-json extra-class"><pre class="language-json"><code>POST /product-test/_search
+<span class="token punctuation">{</span>
+  <span class="token property">&quot;size&quot;</span><span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;aggs&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token property">&quot;groupby_brand&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token property">&quot;terms&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token property">&quot;field&quot;</span><span class="token operator">:</span> <span class="token string">&quot;brand&quot;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;aggs&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token property">&quot;subtotal_quantity&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+            <span class="token property">&quot;sum&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+              <span class="token property">&quot;field&quot;</span><span class="token operator">:</span> <span class="token string">&quot;quantity&quot;</span>
+            <span class="token punctuation">}</span>
+          <span class="token punctuation">}</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;subtotal_price&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+            <span class="token property">&quot;sum&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+              <span class="token property">&quot;script&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+                <span class="token property">&quot;source&quot;</span><span class="token operator">:</span> <span class="token string">&quot;doc['quantity'].value * doc['price'].value&quot;</span>
+              <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token property">&quot;total_quantity&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token property">&quot;sum_bucket&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token property">&quot;buckets_path&quot;</span><span class="token operator">:</span> <span class="token string">&quot;groupby_brand&gt;subtotal_quantity&quot;</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token property">&quot;total_price&quot;</span><span class="token operator">:</span><span class="token punctuation">{</span>
+        <span class="token property">&quot;sum_bucket&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token property">&quot;buckets_path&quot;</span><span class="token operator">:</span> <span class="token string">&quot;groupby_brand&gt;subtotal_price&quot;</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>上述示例中，我们首先定义了一个名为 <code>groupby_brand</code> 的聚合操作，用于按照品牌分组计算每个品牌的商品库存总和及每个品牌的商品总价。然后，我们使用 <code>total_quantity</code> 和 <code>total_price</code> 的Pipeline聚合计算所有商品的总库存和总价格。这两个Pipeline聚合使用 <code>buckets_path</code> 参数引用先前聚合操作中的结果。</p> <p>Elasticsearch pipeline聚合是一种强大的数据处理工具，可以对文档进行多个步骤的处理和转换，从而实现更精细的数据分析。以下是其主要作用：</p> <ol><li>数据预处理：通过pipeline聚合，可以对原始数据进行预处理，如数据清洗、格式化、去重、分词等。这有助于提高数据质量和准确性。</li> <li>数据转换：pipeline聚合还可以对文档进行转换，如合并、拆分、提取关键信息等。这有助于生成新的数据集合和维度。</li> <li>数据筛选：pipeline聚合可以根据特定条件过滤文档，如时间范围、关键词、属性值等。这有助于快速筛选出目标文档。</li> <li>数据聚合：pipeline聚合可以对文档进行聚合操作，如分组、统计、求和、平均值等。这有助于生成更全面和精准的数据分析结果。</li> <li>数据可视化：pipeline聚合可以将数据聚合结果以图表、表格等形式展现出来，从而方便用户进行数据可视化和分析。</li></ol> <p>总的来说，elasticsearch pipeline聚合的主要作用是提高数据处理效率和精度，同时也方便用户对数据进行自定义处理和分析。</p></div></article> <section class="post-meta main-div" data-v-4e23451f><section class="post-date clearfix" data-v-4e23451f><span class="create-date" data-v-4e23451f>
+      发布时间 : 2023-06-18
+    </span> <!----></section> <section class="post-links" data-v-4e23451f><a href="/posts/2023/06/17/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B9%9D-%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2%E4%B9%8Bmetric.html" class="post-link" data-v-4e23451f>
+      上一篇 : ElasticSearch学习笔记(九) 聚合查询之Metric
+    </a> <a href="/posts/2023/06/19/elasticsearch%E6%B7%B1%E5%BA%A6%E5%88%86%E9%A1%B5%E8%AF%A6%E8%A7%A3.html" class="post-link" data-v-4e23451f>
+      下一篇 : ElasticSearch深度分页问题详解
+    </a></section></section> <div id="post-comments" class="main-div"><!----></div></div></main> <aside class="aside" data-v-6cd81e6a><div class="info-card main-div" data-v-3da8ff8d data-v-6cd81e6a><div class="info-card-header" data-v-3da8ff8d><img src="/assets/img/avatar.jpg" alt="yang" class="info-avatar" data-v-3da8ff8d></div> <div class="info-card-body" data-v-3da8ff8d><section class="info-nickname" data-v-3da8ff8d>
+      yang
+    </section> <!----> <section class="info-contact" data-v-3da8ff8d><!----> <!----> <!----></section></div> <div class="info-card-footer" data-v-3da8ff8d><section class="info-sns clearfix" data-v-3da8ff8d></section></div></div> <div class="post-nav-card main-div" style="position:relative;top:0;width:0px;" data-v-6cd81e6a><!----> <div class="post-nav-comments"><svg class="icon"><title>comment</title><use xlink:href="#icon-comment"></use></svg> <a href="/posts/2023/06/18/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%8D%81-%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2%E4%B9%8Bpipline.html#post-comments">
+      评论
+    </a></div></div></aside></div> <footer class="footer" data-v-1114308c><p class="sns-links" data-v-1114308c></p> <p data-v-1114308c><span data-v-1114308c>Powered by </span> <a href="https://vuepress.vuejs.org" target="_blank" data-v-1114308c>
+      Vuepress
+    </a></p></footer></div><div class="global-ui"><!----><!----></div></div>
+    <script src="/assets/js/vendor.2.672efb23.js" defer></script><script src="/assets/js/15.259a8f6b.js" defer></script><script src="/assets/js/vendor.1.3967ac5f.js" defer></script><script src="/assets/js/vendor.0.4df80900.js" defer></script><script src="/assets/js/app.a8b8daa8.js" defer></script>
+  </body>
+</html>

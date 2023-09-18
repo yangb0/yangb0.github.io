@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>ElasticSearch学习笔记(四) IK分词 | yang的博客</title>
+    <meta name="description" content="yang的博客">
+    <link rel="icon" href="/assets/img/avatar.jpg">
+    
+    <link rel="preload" href="/assets/css/3.styles.672efb23.css" as="style"><link rel="preload" href="/assets/js/vendor.2.672efb23.js" as="script"><link rel="preload" href="/assets/js/vendor.1.3967ac5f.js" as="script"><link rel="preload" href="/assets/css/0.styles.4df80900.css" as="style"><link rel="preload" href="/assets/js/vendor.0.4df80900.js" as="script"><link rel="preload" href="/assets/js/app.a8b8daa8.js" as="script"><link rel="preload" href="/assets/js/8.5e5bb804.js" as="script"><link rel="prefetch" href="/assets/css/4.styles.3b621091.css"><link rel="prefetch" href="/assets/js/10.8478bdff.js"><link rel="prefetch" href="/assets/js/11.ee26bcc0.js"><link rel="prefetch" href="/assets/js/12.55cc93a1.js"><link rel="prefetch" href="/assets/js/13.acefd014.js"><link rel="prefetch" href="/assets/js/14.73204498.js"><link rel="prefetch" href="/assets/js/15.259a8f6b.js"><link rel="prefetch" href="/assets/js/16.b7a2ccfa.js"><link rel="prefetch" href="/assets/js/17.91927fe4.js"><link rel="prefetch" href="/assets/js/18.31d42ce8.js"><link rel="prefetch" href="/assets/js/19.5779d05f.js"><link rel="prefetch" href="/assets/js/20.0f83e315.js"><link rel="prefetch" href="/assets/js/21.e5ef8958.js"><link rel="prefetch" href="/assets/js/22.9ef640bd.js"><link rel="prefetch" href="/assets/js/23.3f7faed0.js"><link rel="prefetch" href="/assets/js/24.010d36ab.js"><link rel="prefetch" href="/assets/js/25.e648bc8e.js"><link rel="prefetch" href="/assets/js/26.7ec4c43f.js"><link rel="prefetch" href="/assets/js/27.ca7ce5ff.js"><link rel="prefetch" href="/assets/js/28.b471d502.js"><link rel="prefetch" href="/assets/js/4.3b621091.js"><link rel="prefetch" href="/assets/js/5.070e33ea.js"><link rel="prefetch" href="/assets/js/6.d4b3b4c1.js"><link rel="prefetch" href="/assets/js/7.44b1e335.js"><link rel="prefetch" href="/assets/js/9.a3b29316.js">
+    <link rel="stylesheet" href="/assets/css/3.styles.672efb23.css"><link rel="stylesheet" href="/assets/css/0.styles.4df80900.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div id="vuepress-theme-meteorlxy"><header class="header" data-v-0539f1bd><div data-v-39c72c19 data-v-0539f1bd><nav class="navbar" data-v-39c72c19><div class="container" data-v-39c72c19><a href="/" class="router-link-active" data-v-39c72c19><span class="navbar-site-name" data-v-39c72c19>
+          yang的博客
+        </span></a> <div class="navbar-toggler" data-v-39c72c19><svg class="icon" style="font-size:1.2em;" data-v-39c72c19 data-v-39c72c19><title data-v-39c72c19 data-v-39c72c19>menu</title><use xlink:href="#icon-menu" data-v-39c72c19 data-v-39c72c19></use></svg></div> <div class="navbar-links" data-v-39c72c19><a href="/" class="navbar-link" data-v-39c72c19>
+            主页
+          </a><a href="/posts/" class="navbar-link router-link-active" data-v-39c72c19>
+            文章
+          </a></div></div></nav> <div class="navbar-holder" style="display:none;" data-v-39c72c19></div></div> <div class="banner" data-v-98d6aa8c data-v-0539f1bd data-v-0539f1bd><div class="container" data-v-98d6aa8c><div class="center" data-v-98d6aa8c><h1 data-v-98d6aa8c data-v-0539f1bd>
+          ElasticSearch学习笔记(四) IK分词
+        </h1></div></div></div></header> <div class="container clearfix show-aside" data-v-6cd81e6a data-v-6cd81e6a><main class="main" data-v-6cd81e6a><div class="post" data-v-6cd81e6a data-v-6cd81e6a><section class="post-meta main-div" data-v-4e23451f><section class="post-date clearfix" data-v-4e23451f><span class="create-date" data-v-4e23451f>
+      发布时间 : 2023-06-10
+    </span> <!----></section> <section class="post-links" data-v-4e23451f><a href="/posts/2023/06/09/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B8%89-es%E6%96%87%E6%A1%A3%E7%9A%84%E6%93%8D%E4%BD%9C.html" class="post-link" data-v-4e23451f>
+      上一篇 : ElasticSearch学习笔记(三) Es文档基础操作
+    </a> <a href="/posts/2023/06/10/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%88%A9%E7%94%A8%E6%89%A9%E5%B1%95%E8%AF%8D%E3%80%81%E5%81%9C%E6%AD%A2%E8%AF%8D%E5%92%8C%E5%90%8C%E4%B9%89%E8%AF%8D%E6%8F%90%E9%AB%98%E6%90%9C%E7%B4%A2%E5%87%86%E7%A1%AE%E6%80%A7.html" class="post-link" data-v-4e23451f>
+      下一篇 : ElasticSearch学习笔记(五) 利用扩展词、停止词和同义词提高搜索准确性
+    </a></section></section> <article class="main-div"><div class="post-content content content__default"><p>​	前面了解了Elasticsearch中对索引及文档的基本操作。今天了解Es中非常重要的一个概念:分词。在 Elasticsearch  中，中文分词的首选分词器是 ik 分词器。在本文中，我们将介绍如何使用 ik 分词器将商品名称（name）字段进行分词，并详细介绍分词过程及结果等。</p> <h2 id="一、ik分词简介"><a href="#一、ik分词简介" aria-hidden="true" class="header-anchor">#</a> 一、ik分词简介</h2> <p>ik分词是一个中文分词器，是基于lucene开发的开源项目，可以通过Elasticsearch的插件方式集成到Elasticsearch中。相对于其他分词器，ik分词的特点在于：</p> <ol><li>更加细致的切分能力</li> <li>支持自定义词典</li> <li>支持拼音转换</li> <li>支持多种分词模式</li></ol> <p>由于ik分词具有良好的中文分词效果，因此在Elasticsearch中使用ik分词插件进行搜索的应用非常广泛。</p> <h2 id="二、安装-ik-分词器插件"><a href="#二、安装-ik-分词器插件" aria-hidden="true" class="header-anchor">#</a> 二、安装 ik 分词器插件</h2> <p>首先，我们需要安装 ik 分词器插件。进入github中ik分词器的源码地址里下载，https://github.com/medcl/elasticsearch-analysis-ik。我们需要根据Es的版本下载对应的分词包。这里我们下载的是v7.11.2：</p> <p><img src="/assets/img/image-20230609114242346.png" alt="image-20230609114242346"></p> <p>由于前面我们使用Docker安装Elasticsearch时已经将Es的plugins目录映射出来了，这里我们只需要将分词包放到映射出来的plugins目录中，重启 Elasticsearch即可生效。</p> <h2 id="三、使用介绍"><a href="#三、使用介绍" aria-hidden="true" class="header-anchor">#</a> 三、使用介绍</h2> <h3 id="_1-分词模式介绍"><a href="#_1-分词模式介绍" aria-hidden="true" class="header-anchor">#</a> 1.分词模式介绍</h3> <p>ik分词器有两种分词模式：ik_max_word和ik_smart模式。</p> <ul><li>&quot;ik_smart&quot;：是一种比较快速的分词算法，它会尽可能地将文本切分成一个个意义明确的词语。但是可能会出现一些有歧义的结果。</li> <li>&quot;ik_max_word&quot;：是一种更加细致、准确的分词算法，它不仅会将文本切分成一个个意义明确的词语，还会考虑到词语之间的关联性，以保证最大化整体语义的准确性。但是“ik_max_word”分词算法相比于“ik_smart”分词算法在效率上有所降低。</li></ul> <p>因此，如果你对分词效率有要求，并且可以容忍一定的歧义性结果，可以选择使用“ik_smart”分词算法；如果你更注重分词的准确性，可以选择使用“ik_max_word”分词算法。</p> <p style="color:red;">最佳实践：两种分词器使用的最佳实践是：索引时用ik_max_word，在搜索时用ik_smart。即：索引时最大化的将文章内容分词，搜索时更精确的搜索到想要的结果。</p> <h3 id="_2-使用示例"><a href="#_2-使用示例" aria-hidden="true" class="header-anchor">#</a> 2.使用示例</h3> <p>在创建商品索引product-test时，需要在商品名称字段上指定使用ik分词器。具体做法如下：</p> <div class="language- extra-class"><pre class="language-text"><code>PUT /product-test
+{
+  &quot;mappings&quot;: {
+    &quot;properties&quot;: {
+      &quot;name&quot;: {
+        &quot;type&quot;: &quot;text&quot;,
+        &quot;analyzer&quot;: &quot;ik_max_word&quot;
+      },
+      &quot;image&quot;: {
+        &quot;type&quot;: &quot;keyword&quot;
+      },
+      &quot;price&quot;: {
+        &quot;type&quot;: &quot;float&quot;
+      },
+      &quot;quantity&quot;: {
+        &quot;type&quot;: &quot;integer&quot;
+      }
+    }
+  }
+}
+</code></pre></div><p>在上述代码中，我们使用了ik_max_word分词器来对商品名称进行分词处理。为了验证商品名称已经正确地使用了ik_max_word分词器进行了分词处理，我们可以通过以下命令获取商品名称字段的分词结果：</p> <div class="language- extra-class"><pre class="language-text"><code>POST /product-test/_analyze
+{
+  &quot;analyzer&quot;: &quot;ik_max_word&quot;,
+  &quot;text&quot;: &quot;苹果手机 XR 64G&quot;
+}
+</code></pre></div><p>执行上述命令后，我们可以得到如下的分词结果：</p> <div class="language- extra-class"><pre class="language-text"><code>{
+  &quot;tokens&quot; : [
+    {
+      &quot;token&quot; : &quot;苹果&quot;,
+      &quot;start_offset&quot; : 0,
+      &quot;end_offset&quot; : 2,
+      &quot;type&quot; : &quot;CN_WORD&quot;,
+      &quot;position&quot; : 0
+    },
+    {
+      &quot;token&quot; : &quot;苹&quot;,
+      &quot;start_offset&quot; : 0,
+      &quot;end_offset&quot; : 1,
+      &quot;type&quot; : &quot;CN_WORD&quot;,
+      &quot;position&quot; : 1
+    },
+    {
+      &quot;token&quot; : &quot;果&quot;,
+      &quot;start_offset&quot; : 1,
+      &quot;end_offset&quot; : 2,
+      &quot;type&quot; : &quot;CN_WORD&quot;,
+      &quot;position&quot; : 2
+    },
+    {
+      &quot;token&quot; : &quot;手机&quot;,
+      &quot;start_offset&quot; : 2,
+      &quot;end_offset&quot; : 4,
+      &quot;type&quot; : &quot;CN_WORD&quot;,
+      &quot;position&quot; : 3
+    },
+    {
+      &quot;token&quot; : &quot;手&quot;,
+      &quot;start_offset&quot; : 2,
+      &quot;end_offset&quot; : 3,
+      &quot;type&quot; : &quot;CN_WORD&quot;,
+      &quot;position&quot; : 4
+    },
+    {
+      &quot;token&quot; : &quot;机&quot;,
+      &quot;start_offset&quot; : 3,
+      &quot;end_offset&quot; : 4,
+      &quot;type&quot; : &quot;CN_WORD&quot;,
+      &quot;position&quot; : 5
+    },
+    {
+      &quot;token&quot; : &quot;xr&quot;,
+      &quot;start_offset&quot; : 5,
+      &quot;end_offset&quot; : 7,
+      &quot;type&quot; : &quot;ENGLISH&quot;,
+      &quot;position&quot; : 6
+    },
+    {
+      &quot;token&quot; : &quot;64g&quot;,
+      &quot;start_offset&quot; : 8,
+      &quot;end_offset&quot; : 11,
+      &quot;type&quot; : &quot;LETTER&quot;,
+      &quot;position&quot; : 7
+    },
+    {
+      &quot;token&quot; : &quot;64&quot;,
+      &quot;start_offset&quot; : 8,
+      &quot;end_offset&quot; : 10,
+      &quot;type&quot; : &quot;ARABIC&quot;,
+      &quot;position&quot; : 8
+    },
+    {
+      &quot;token&quot; : &quot;g&quot;,
+      &quot;start_offset&quot; : 10,
+      &quot;end_offset&quot; : 11,
+      &quot;type&quot; : &quot;ENGLISH&quot;,
+      &quot;position&quot; : 9
+    }
+  ]
+}
+
+</code></pre></div><p>从分词结果可以看出，商品名称被成功地切分成了若干个词汇。</p> <p>为了演示如何通过分词搜索商品名称，我们往索引中添加一些数据。</p> <div class="language- extra-class"><pre class="language-text"><code>
+POST /product-test/_bulk
+{ &quot;index&quot;: { &quot;_id&quot;: 1 }}
+{ &quot;name&quot;: &quot;苹果12 Pro Max&quot;, &quot;image&quot;: &quot;https://images.com/iphone12promax.jpg&quot;, &quot;price&quot;: 4000, &quot;quantity&quot;: 50 }
+{ &quot;index&quot;: { &quot;_id&quot;: 2 }}
+{ &quot;name&quot;: &quot;Samsung Galaxy S21 Ultra&quot;, &quot;image&quot;: &quot;https://images.com/SamsungS21.jpg&quot;, &quot;price&quot;: 5200, &quot;quantity&quot;: 100 }
+{ &quot;index&quot;: { &quot;_id&quot;: 3 }}
+{ &quot;name&quot;: &quot;苹果14 Mini&quot;, &quot;image&quot;: &quot;https://images.com/iphone14mini.jpg&quot;, &quot;price&quot;: 5999, &quot;quantity&quot;: 200 }
+{ &quot;index&quot;: { &quot;_id&quot;: 4 }}
+{ &quot;name&quot;: &quot;苹果14 Pro Max&quot;, &quot;image&quot;: &quot;https://images.com/iphone12promax.jpg&quot;, &quot;price&quot;: 8999, &quot;quantity&quot;: 250 }
+{ &quot;index&quot;: { &quot;_id&quot;: 5 }}
+{ &quot;name&quot;: &quot;华为Mate 40 Pro&quot;, &quot;image&quot;: &quot;https://images.com/HuaweiMate40.jpg&quot;, &quot;price&quot;: 5999, &quot;quantity&quot;: 50 }
+{ &quot;index&quot;: { &quot;_id&quot;: 6 }}
+{ &quot;name&quot;: &quot;小米14&quot;, &quot;image&quot;: &quot;https://images.com/xiaomi14.jpg&quot;, &quot;price&quot;: 5999, &quot;quantity&quot;: 50 }
+</code></pre></div><p>我们可以使用以下代码来进行搜索：</p> <div class="language- extra-class"><pre class="language-text"><code>GET /product-test/_search
+{
+  &quot;query&quot;: {
+    &quot;match&quot;: {
+      &quot;name&quot;: &quot;苹果&quot;
+    }
+  }
+}
+</code></pre></div><p>执行上述命令后，我们可以得到如下的搜索结果：</p> <div class="language- extra-class"><pre class="language-text"><code>{
+  &quot;took&quot; : 0,
+  &quot;timed_out&quot; : false,
+  &quot;_shards&quot; : {
+    &quot;total&quot; : 1,
+    &quot;successful&quot; : 1,
+    &quot;skipped&quot; : 0,
+    &quot;failed&quot; : 0
+  },
+  &quot;hits&quot; : {
+    &quot;total&quot; : {
+      &quot;value&quot; : 3,
+      &quot;relation&quot; : &quot;eq&quot;
+    },
+    &quot;max_score&quot; : 4.0781574,
+    &quot;hits&quot; : [
+      {
+        &quot;_index&quot; : &quot;product-test&quot;,
+        &quot;_type&quot; : &quot;_doc&quot;,
+        &quot;_id&quot; : &quot;3&quot;,
+        &quot;_score&quot; : 4.0781574,
+        &quot;_source&quot; : {
+          &quot;name&quot; : &quot;苹果14 Mini&quot;,
+          &quot;image&quot; : &quot;https://images.com/iphone14mini.jpg&quot;,
+          &quot;price&quot; : 5999,
+          &quot;quantity&quot; : 200
+        }
+      },
+      {
+        &quot;_index&quot; : &quot;product-test&quot;,
+        &quot;_type&quot; : &quot;_doc&quot;,
+        &quot;_id&quot; : &quot;1&quot;,
+        &quot;_score&quot; : 3.761748,
+        &quot;_source&quot; : {
+          &quot;name&quot; : &quot;苹果12 Pro Max&quot;,
+          &quot;image&quot; : &quot;https://images.com/iphone12promax.jpg&quot;,
+          &quot;price&quot; : 4000,
+          &quot;quantity&quot; : 50
+        }
+      },
+      {
+        &quot;_index&quot; : &quot;product-test&quot;,
+        &quot;_type&quot; : &quot;_doc&quot;,
+        &quot;_id&quot; : &quot;4&quot;,
+        &quot;_score&quot; : 3.761748,
+        &quot;_source&quot; : {
+          &quot;name&quot; : &quot;苹果14 Pro Max&quot;,
+          &quot;image&quot; : &quot;https://images.com/iphone12promax.jpg&quot;,
+          &quot;price&quot; : 8999,
+          &quot;quantity&quot; : 250
+        }
+      }
+    ]
+  }
+}
+
+</code></pre></div><p>从搜索结果可以看出，通过使用ik_max_word分词器对商品名称进行分词处理后，我们可以轻松地将商品名称包含“苹果”的商品搜索出来。 同样 当我们搜索 “14” 的时候 ，我们会把“小米14”、“苹果14 Mini”、“苹果14 Pro Max”的结果搜索出来。</p></div></article> <section class="post-meta main-div" data-v-4e23451f><section class="post-date clearfix" data-v-4e23451f><span class="create-date" data-v-4e23451f>
+      发布时间 : 2023-06-10
+    </span> <!----></section> <section class="post-links" data-v-4e23451f><a href="/posts/2023/06/09/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B8%89-es%E6%96%87%E6%A1%A3%E7%9A%84%E6%93%8D%E4%BD%9C.html" class="post-link" data-v-4e23451f>
+      上一篇 : ElasticSearch学习笔记(三) Es文档基础操作
+    </a> <a href="/posts/2023/06/10/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%88%A9%E7%94%A8%E6%89%A9%E5%B1%95%E8%AF%8D%E3%80%81%E5%81%9C%E6%AD%A2%E8%AF%8D%E5%92%8C%E5%90%8C%E4%B9%89%E8%AF%8D%E6%8F%90%E9%AB%98%E6%90%9C%E7%B4%A2%E5%87%86%E7%A1%AE%E6%80%A7.html" class="post-link" data-v-4e23451f>
+      下一篇 : ElasticSearch学习笔记(五) 利用扩展词、停止词和同义词提高搜索准确性
+    </a></section></section> <div id="post-comments" class="main-div"><!----></div></div></main> <aside class="aside" data-v-6cd81e6a><div class="info-card main-div" data-v-3da8ff8d data-v-6cd81e6a><div class="info-card-header" data-v-3da8ff8d><img src="/assets/img/avatar.jpg" alt="yang" class="info-avatar" data-v-3da8ff8d></div> <div class="info-card-body" data-v-3da8ff8d><section class="info-nickname" data-v-3da8ff8d>
+      yang
+    </section> <!----> <section class="info-contact" data-v-3da8ff8d><!----> <!----> <!----></section></div> <div class="info-card-footer" data-v-3da8ff8d><section class="info-sns clearfix" data-v-3da8ff8d></section></div></div> <div class="post-nav-card main-div" style="position:relative;top:0;width:0px;" data-v-6cd81e6a><div class="post-nav-contents"><svg class="icon"><title>book</title><use xlink:href="#icon-book"></use></svg> <span>文章目录</span> <div class="post-nav-toc"><ul><li><a href="/posts/2023/06/10/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9B%9B-ik%E5%88%86%E8%AF%8D.html#一、ik分词简介">一、ik分词简介</a></li><li><a href="/posts/2023/06/10/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9B%9B-ik%E5%88%86%E8%AF%8D.html#二、安装-ik-分词器插件">二、安装 ik 分词器插件</a></li><li><a href="/posts/2023/06/10/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9B%9B-ik%E5%88%86%E8%AF%8D.html#三、使用介绍">三、使用介绍</a><ul><li><a href="/posts/2023/06/10/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9B%9B-ik%E5%88%86%E8%AF%8D.html#_1-分词模式介绍">1.分词模式介绍</a></li></ul></li></ul></div></div> <div class="post-nav-comments"><svg class="icon"><title>comment</title><use xlink:href="#icon-comment"></use></svg> <a href="/posts/2023/06/10/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9B%9B-ik%E5%88%86%E8%AF%8D.html#post-comments">
+      评论
+    </a></div></div></aside></div> <footer class="footer" data-v-1114308c><p class="sns-links" data-v-1114308c></p> <p data-v-1114308c><span data-v-1114308c>Powered by </span> <a href="https://vuepress.vuejs.org" target="_blank" data-v-1114308c>
+      Vuepress
+    </a></p></footer></div><div class="global-ui"><!----><!----></div></div>
+    <script src="/assets/js/vendor.2.672efb23.js" defer></script><script src="/assets/js/8.5e5bb804.js" defer></script><script src="/assets/js/vendor.1.3967ac5f.js" defer></script><script src="/assets/js/vendor.0.4df80900.js" defer></script><script src="/assets/js/app.a8b8daa8.js" defer></script>
+  </body>
+</html>

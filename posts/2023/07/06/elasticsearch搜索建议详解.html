@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>elasticsearch搜索建议详解 | yang的博客</title>
+    <meta name="description" content="yang的博客">
+    <link rel="icon" href="/assets/img/avatar.jpg">
+    
+    <link rel="preload" href="/assets/css/3.styles.672efb23.css" as="style"><link rel="preload" href="/assets/js/vendor.2.672efb23.js" as="script"><link rel="preload" href="/assets/js/vendor.1.3967ac5f.js" as="script"><link rel="preload" href="/assets/css/0.styles.4df80900.css" as="style"><link rel="preload" href="/assets/js/vendor.0.4df80900.js" as="script"><link rel="preload" href="/assets/js/app.a8b8daa8.js" as="script"><link rel="preload" href="/assets/js/17.91927fe4.js" as="script"><link rel="prefetch" href="/assets/css/4.styles.3b621091.css"><link rel="prefetch" href="/assets/js/10.8478bdff.js"><link rel="prefetch" href="/assets/js/11.ee26bcc0.js"><link rel="prefetch" href="/assets/js/12.55cc93a1.js"><link rel="prefetch" href="/assets/js/13.acefd014.js"><link rel="prefetch" href="/assets/js/14.73204498.js"><link rel="prefetch" href="/assets/js/15.259a8f6b.js"><link rel="prefetch" href="/assets/js/16.b7a2ccfa.js"><link rel="prefetch" href="/assets/js/18.31d42ce8.js"><link rel="prefetch" href="/assets/js/19.5779d05f.js"><link rel="prefetch" href="/assets/js/20.0f83e315.js"><link rel="prefetch" href="/assets/js/21.e5ef8958.js"><link rel="prefetch" href="/assets/js/22.9ef640bd.js"><link rel="prefetch" href="/assets/js/23.3f7faed0.js"><link rel="prefetch" href="/assets/js/24.010d36ab.js"><link rel="prefetch" href="/assets/js/25.e648bc8e.js"><link rel="prefetch" href="/assets/js/26.7ec4c43f.js"><link rel="prefetch" href="/assets/js/27.ca7ce5ff.js"><link rel="prefetch" href="/assets/js/28.b471d502.js"><link rel="prefetch" href="/assets/js/4.3b621091.js"><link rel="prefetch" href="/assets/js/5.070e33ea.js"><link rel="prefetch" href="/assets/js/6.d4b3b4c1.js"><link rel="prefetch" href="/assets/js/7.44b1e335.js"><link rel="prefetch" href="/assets/js/8.5e5bb804.js"><link rel="prefetch" href="/assets/js/9.a3b29316.js">
+    <link rel="stylesheet" href="/assets/css/3.styles.672efb23.css"><link rel="stylesheet" href="/assets/css/0.styles.4df80900.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div id="vuepress-theme-meteorlxy"><header class="header" data-v-0539f1bd><div data-v-39c72c19 data-v-0539f1bd><nav class="navbar" data-v-39c72c19><div class="container" data-v-39c72c19><a href="/" class="router-link-active" data-v-39c72c19><span class="navbar-site-name" data-v-39c72c19>
+          yang的博客
+        </span></a> <div class="navbar-toggler" data-v-39c72c19><svg class="icon" style="font-size:1.2em;" data-v-39c72c19 data-v-39c72c19><title data-v-39c72c19 data-v-39c72c19>menu</title><use xlink:href="#icon-menu" data-v-39c72c19 data-v-39c72c19></use></svg></div> <div class="navbar-links" data-v-39c72c19><a href="/" class="navbar-link" data-v-39c72c19>
+            主页
+          </a><a href="/posts/" class="navbar-link router-link-active" data-v-39c72c19>
+            文章
+          </a></div></div></nav> <div class="navbar-holder" style="display:none;" data-v-39c72c19></div></div> <div class="banner" data-v-98d6aa8c data-v-0539f1bd data-v-0539f1bd><div class="container" data-v-98d6aa8c><div class="center" data-v-98d6aa8c><h1 data-v-98d6aa8c data-v-0539f1bd>
+          elasticsearch搜索建议详解
+        </h1></div></div></div></header> <div class="container clearfix show-aside" data-v-6cd81e6a data-v-6cd81e6a><main class="main" data-v-6cd81e6a><div class="post" data-v-6cd81e6a data-v-6cd81e6a><section class="post-meta main-div" data-v-4e23451f><section class="post-date clearfix" data-v-4e23451f><span class="create-date" data-v-4e23451f>
+      发布时间 : 2023-07-06
+    </span> <!----></section> <section class="post-links" data-v-4e23451f><a href="/posts/2023/06/19/elasticsearch%E6%B7%B1%E5%BA%A6%E5%88%86%E9%A1%B5%E8%AF%A6%E8%A7%A3.html" class="post-link" data-v-4e23451f>
+      上一篇 : ElasticSearch深度分页问题详解
+    </a> <a href="/posts/2023/09/14/docker%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83.html" class="post-link" data-v-4e23451f>
+      下一篇 : Docker搭建本地开发环境
+    </a></section></section> <article class="main-div"><div class="post-content content content__default"><p>Elasticsearch搜索建议功能是一种自动补全和建议相关搜索词的功能，它通过分析已有的搜索关键词和文档内容，提供用户可能感兴趣的搜索建议。下面是关于Elasticsearch搜索建议功能的详细说明：</p> <p>概念： 搜索建议（Search Suggest）是Elasticsearch提供的一种搜索提示功能，它能够通过分析文档和用户的搜索历史，提供相关的搜索建议给用户。搜索建议可以分为两种类型：补全建议（Completion Suggester）和短语建议（Phrase Suggester）。补全建议用于自动补全用户的输入，短语建议用于提供与用户输入相关的短语或句子。</p> <p>用途：</p> <ol><li>提升用户体验：搜索建议可以帮助用户快速找到他们想要的内容，提升搜索的准确性和效率。</li> <li>提供相关搜索词：搜索建议可以根据用户的搜索历史和文档内容，提供与用户输入相关的搜索建议，帮助用户发现新的搜索词。</li></ol> <p>使用场景： 搜索建议功能在各种应用中都有广泛的应用场景，例如电子商务网站的搜索提示、新闻网站的关键词建议、搜索引擎的搜索建议等。</p> <p>完整示例：</p> <ol><li>创建索引： 首先，我们需要创建一个索引，并定义一个字段用于存储搜索建议的数据。例如，我们创建一个名为&quot;products&quot;的索引，其中包含一个名为&quot;suggest&quot;的字段，用于存储搜索建议的数据。</li></ol> <div class="language- extra-class"><pre class="language-text"><code>PUT /products 
+{ &quot;mappings&quot;: { &quot;properties&quot;: { &quot;suggest&quot;: { &quot;type&quot;: &quot;completion&quot; } } } }
+</code></pre></div><ol><li>添加文档： 接下来，我们添加一些文档到索引中，并为每个文档的&quot;suggest&quot;字段提供搜索建议的数据。</li></ol> <p>PUT /products/_doc/1 { &quot;name&quot;: &quot;iPhone 12&quot;, &quot;suggest&quot;: { &quot;input&quot;: [&quot;iPhone&quot;, &quot;Apple iPhone&quot;, &quot;iPhone 12&quot;], &quot;weight&quot;: 10 } }</p> <p>PUT /products/_doc/2 { &quot;name&quot;: &quot;Samsung Galaxy S21&quot;, &quot;suggest&quot;: { &quot;input&quot;: [&quot;Samsung&quot;, &quot;Galaxy&quot;, &quot;Samsung Galaxy&quot;, &quot;Galaxy S21&quot;], &quot;weight&quot;: 8 } }</p> <ol><li>搜索建议： 现在，我们可以使用搜索建议功能来获取与用户输入相关的搜索建议。</li></ol> <p>POST /products/_search { &quot;suggest&quot;: { &quot;product-suggest&quot;: { &quot;prefix&quot;: &quot;i&quot;, &quot;completion&quot;: { &quot;field&quot;: &quot;suggest&quot; } } } }</p> <p>在上面的示例中，我们搜索以&quot;i&quot;开头的搜索建议。Elasticsearch将返回与用户输入相关的搜索建议。</p> <p>以上就是关于Elasticsearch搜索建议功能的详细说明，包括概念、用途、使用场景和完整示例。通过搜索建议功能，可以提升用户体验，提供相关的搜索词，并在各种应用中有广泛的应用场景。</p></div></article> <section class="post-meta main-div" data-v-4e23451f><section class="post-date clearfix" data-v-4e23451f><span class="create-date" data-v-4e23451f>
+      发布时间 : 2023-07-06
+    </span> <!----></section> <section class="post-links" data-v-4e23451f><a href="/posts/2023/06/19/elasticsearch%E6%B7%B1%E5%BA%A6%E5%88%86%E9%A1%B5%E8%AF%A6%E8%A7%A3.html" class="post-link" data-v-4e23451f>
+      上一篇 : ElasticSearch深度分页问题详解
+    </a> <a href="/posts/2023/09/14/docker%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83.html" class="post-link" data-v-4e23451f>
+      下一篇 : Docker搭建本地开发环境
+    </a></section></section> <div id="post-comments" class="main-div"><!----></div></div></main> <aside class="aside" data-v-6cd81e6a><div class="info-card main-div" data-v-3da8ff8d data-v-6cd81e6a><div class="info-card-header" data-v-3da8ff8d><img src="/assets/img/avatar.jpg" alt="yang" class="info-avatar" data-v-3da8ff8d></div> <div class="info-card-body" data-v-3da8ff8d><section class="info-nickname" data-v-3da8ff8d>
+      yang
+    </section> <!----> <section class="info-contact" data-v-3da8ff8d><!----> <!----> <!----></section></div> <div class="info-card-footer" data-v-3da8ff8d><section class="info-sns clearfix" data-v-3da8ff8d></section></div></div> <div class="post-nav-card main-div" style="position:relative;top:0;width:0px;" data-v-6cd81e6a><!----> <div class="post-nav-comments"><svg class="icon"><title>comment</title><use xlink:href="#icon-comment"></use></svg> <a href="/posts/2023/07/06/elasticsearch%E6%90%9C%E7%B4%A2%E5%BB%BA%E8%AE%AE%E8%AF%A6%E8%A7%A3.html#post-comments">
+      评论
+    </a></div></div></aside></div> <footer class="footer" data-v-1114308c><p class="sns-links" data-v-1114308c></p> <p data-v-1114308c><span data-v-1114308c>Powered by </span> <a href="https://vuepress.vuejs.org" target="_blank" data-v-1114308c>
+      Vuepress
+    </a></p></footer></div><div class="global-ui"><!----><!----></div></div>
+    <script src="/assets/js/vendor.2.672efb23.js" defer></script><script src="/assets/js/17.91927fe4.js" defer></script><script src="/assets/js/vendor.1.3967ac5f.js" defer></script><script src="/assets/js/vendor.0.4df80900.js" defer></script><script src="/assets/js/app.a8b8daa8.js" defer></script>
+  </body>
+</html>

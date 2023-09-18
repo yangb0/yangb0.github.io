@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>ElasticSearch学习笔记(九) 聚合查询之Metric | yang的博客</title>
+    <meta name="description" content="yang的博客">
+    <link rel="icon" href="/assets/img/avatar.jpg">
+    
+    <link rel="preload" href="/assets/css/3.styles.672efb23.css" as="style"><link rel="preload" href="/assets/js/vendor.2.672efb23.js" as="script"><link rel="preload" href="/assets/js/vendor.1.3967ac5f.js" as="script"><link rel="preload" href="/assets/css/0.styles.4df80900.css" as="style"><link rel="preload" href="/assets/js/vendor.0.4df80900.js" as="script"><link rel="preload" href="/assets/js/app.a8b8daa8.js" as="script"><link rel="preload" href="/assets/js/14.73204498.js" as="script"><link rel="prefetch" href="/assets/css/4.styles.3b621091.css"><link rel="prefetch" href="/assets/js/10.8478bdff.js"><link rel="prefetch" href="/assets/js/11.ee26bcc0.js"><link rel="prefetch" href="/assets/js/12.55cc93a1.js"><link rel="prefetch" href="/assets/js/13.acefd014.js"><link rel="prefetch" href="/assets/js/15.259a8f6b.js"><link rel="prefetch" href="/assets/js/16.b7a2ccfa.js"><link rel="prefetch" href="/assets/js/17.91927fe4.js"><link rel="prefetch" href="/assets/js/18.31d42ce8.js"><link rel="prefetch" href="/assets/js/19.5779d05f.js"><link rel="prefetch" href="/assets/js/20.0f83e315.js"><link rel="prefetch" href="/assets/js/21.e5ef8958.js"><link rel="prefetch" href="/assets/js/22.9ef640bd.js"><link rel="prefetch" href="/assets/js/23.3f7faed0.js"><link rel="prefetch" href="/assets/js/24.010d36ab.js"><link rel="prefetch" href="/assets/js/25.e648bc8e.js"><link rel="prefetch" href="/assets/js/26.7ec4c43f.js"><link rel="prefetch" href="/assets/js/27.ca7ce5ff.js"><link rel="prefetch" href="/assets/js/28.b471d502.js"><link rel="prefetch" href="/assets/js/4.3b621091.js"><link rel="prefetch" href="/assets/js/5.070e33ea.js"><link rel="prefetch" href="/assets/js/6.d4b3b4c1.js"><link rel="prefetch" href="/assets/js/7.44b1e335.js"><link rel="prefetch" href="/assets/js/8.5e5bb804.js"><link rel="prefetch" href="/assets/js/9.a3b29316.js">
+    <link rel="stylesheet" href="/assets/css/3.styles.672efb23.css"><link rel="stylesheet" href="/assets/css/0.styles.4df80900.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div id="vuepress-theme-meteorlxy"><header class="header" data-v-0539f1bd><div data-v-39c72c19 data-v-0539f1bd><nav class="navbar" data-v-39c72c19><div class="container" data-v-39c72c19><a href="/" class="router-link-active" data-v-39c72c19><span class="navbar-site-name" data-v-39c72c19>
+          yang的博客
+        </span></a> <div class="navbar-toggler" data-v-39c72c19><svg class="icon" style="font-size:1.2em;" data-v-39c72c19 data-v-39c72c19><title data-v-39c72c19 data-v-39c72c19>menu</title><use xlink:href="#icon-menu" data-v-39c72c19 data-v-39c72c19></use></svg></div> <div class="navbar-links" data-v-39c72c19><a href="/" class="navbar-link" data-v-39c72c19>
+            主页
+          </a><a href="/posts/" class="navbar-link router-link-active" data-v-39c72c19>
+            文章
+          </a></div></div></nav> <div class="navbar-holder" style="display:none;" data-v-39c72c19></div></div> <div class="banner" data-v-98d6aa8c data-v-0539f1bd data-v-0539f1bd><div class="container" data-v-98d6aa8c><div class="center" data-v-98d6aa8c><h1 data-v-98d6aa8c data-v-0539f1bd>
+          ElasticSearch学习笔记(九) 聚合查询之Metric
+        </h1></div></div></div></header> <div class="container clearfix show-aside" data-v-6cd81e6a data-v-6cd81e6a><main class="main" data-v-6cd81e6a><div class="post" data-v-6cd81e6a data-v-6cd81e6a><section class="post-meta main-div" data-v-4e23451f><section class="post-date clearfix" data-v-4e23451f><span class="create-date" data-v-4e23451f>
+      发布时间 : 2023-06-17
+    </span> <!----></section> <section class="post-links" data-v-4e23451f><a href="/posts/2023/06/16/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B8%83-%E8%81%9A%E5%90%88.html" class="post-link" data-v-4e23451f>
+      上一篇 : ElasticSearch学习笔记(七) 聚合
+    </a> <a href="/posts/2023/06/18/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%8D%81-%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2%E4%B9%8Bpipline.html" class="post-link" data-v-4e23451f>
+      下一篇 : ElasticSearch学习笔记(十) 聚合查询之pipeline
+    </a></section></section> <article class="main-div"><div class="post-content content content__default"><p>Elasticsearch的Metric聚合主要用于统计在某个字段中的最大、最小、平均数、和、标准差等数值型数据统计指标。下面让我们详细介绍Metric聚合的使用方法，并给出一个完整的示例。</p> <h2 id="metric聚合"><a href="#metric聚合" aria-hidden="true" class="header-anchor">#</a> Metric聚合</h2> <p>Metric聚合是用于计算数值型数据统计指标的一类聚合方法。它可以计算一些统计数据，如最大值，最小值，平均值和加和等，以便对搜索结果进行分析。</p> <p>以下是Metric聚合常用的几种类型：</p> <ul><li><code>avg</code>：计算某个字段的平均值。</li> <li><code>max</code>：计算某个字段的最大值。</li> <li><code>min</code>：计算某个字段的最小值。</li> <li><code>sum</code>：计算某个字段值的和。</li> <li><code>cardinality</code>：计算某个字段的基数（即唯一值的数量）。</li> <li><code>stats</code>：计算某个字段的平均值、最小值、最大值和总和。</li> <li><code>extended_stats</code>：计算某个字段的平均值、最小值、最大值、总和以及标准差和方差。</li></ul> <p>使用Metric聚合需要构造一个聚合对象，它由两个部分组成：聚合名称和聚合类型。</p> <p>例如，我们可以通过以下方式创建一个名为 &quot;average_price&quot; 的聚合，用于计算商品价格的平均值：</p> <div class="language- extra-class"><pre class="language-text"><code>{
+  &quot;aggs&quot;: {
+    &quot;average_price&quot;: {
+      &quot;avg&quot;: {
+        &quot;field&quot;: &quot;price&quot;
+      }
+    }
+  }
+}
+</code></pre></div><p>这个聚合将统计所有匹配查询条件的文档集中商品价格（即字段 &quot;price&quot;）的平均值，并将结果保存到名为 &quot;average_price&quot; 的桶(bucket)中。</p> <h2 id="完整示例"><a href="#完整示例" aria-hidden="true" class="header-anchor">#</a> 完整示例</h2> <p>下面是一个完整的示例，它将根据不同用户在不同时间段内访问的页面进行统计，并返回每一个用户每天平均访问的页面数量，以及每个时间段内访问量最大的前10个页面。</p> <p>首先，假设我们有这样一个索引，记录了所有用户的访问记录：</p> <div class="language- extra-class"><pre class="language-text"><code>PUT /log_index
+{
+  &quot;mappings&quot;: {
+    &quot;properties&quot;: {
+      &quot;user_id&quot;: {&quot;type&quot;: &quot;keyword&quot;},
+      &quot;page_url&quot;: {&quot;type&quot;: &quot;keyword&quot;},
+      &quot;timestamp&quot;: {&quot;type&quot;: &quot;date&quot;}
+    }
+  }
+}
+</code></pre></div><p>然后，我们需要向索引中添加一些数据，用于测试聚合操作。以下是一些典型的访问记录，它们包括用户ID、访问页面的URL以及时间戳：</p> <div class="language- extra-class"><pre class="language-text"><code>POST /log_index/_doc
+{
+  &quot;user_id&quot;: &quot;user1&quot;,
+  &quot;page_url&quot;: &quot;/product/123&quot;,
+  &quot;timestamp&quot;: &quot;2023-06-01T10:00:00&quot;
+}
+
+POST /log_index/_doc
+{
+  &quot;user_id&quot;: &quot;user1&quot;,
+  &quot;page_url&quot;: &quot;/blog/456&quot;,
+  &quot;timestamp&quot;: &quot;2023-06-01T11:00:00&quot;
+}
+
+POST /log_index/_doc
+{
+  &quot;user_id&quot;: &quot;user1&quot;,
+  &quot;page_url&quot;: &quot;/product/789&quot;,
+  &quot;timestamp&quot;: &quot;2023-06-02T10:00:00&quot;
+}
+
+POST /log_index/_doc
+{
+  &quot;user_id&quot;: &quot;user2&quot;,
+  &quot;page_url&quot;: &quot;/blog/789&quot;,
+  &quot;timestamp&quot;: &quot;2023-06-02T12:00:00&quot;
+}
+
+POST /log_index/_doc
+{
+  &quot;user_id&quot;: &quot;user2&quot;,
+  &quot;page_url&quot;: &quot;/product/123&quot;,
+  &quot;timestamp&quot;: &quot;2023-06-03T09:00:00&quot;
+}
+
+POST /log_index/_doc
+{
+  &quot;user_id&quot;: &quot;user2&quot;,
+  &quot;page_url&quot;: &quot;/product/456&quot;,
+  &quot;timestamp&quot;: &quot;2023-06-03T15:00:00&quot;
+}
+</code></pre></div><p>接下来，我们可以使用以下查询来计算每个用户每天平均访问的页面数量，并返回每个时间段内访问量最大的前10个页面：</p> <div class="language- extra-class"><pre class="language-text"><code>POST /log_index/_search
+{
+  &quot;size&quot;: 0,
+  &quot;aggs&quot;: {
+    &quot;user_page_stats&quot;: {
+      &quot;composite&quot;: {
+        &quot;sources&quot;: [
+          {&quot;user_id&quot;: {&quot;terms&quot;: {&quot;field&quot;: &quot;user_id.keyword&quot;}}},
+          {&quot;date&quot;: {&quot;date_histogram&quot;: {&quot;field&quot;: &quot;timestamp&quot;, &quot;interval&quot;: &quot;day&quot;}}}
+        ]
+      },
+      &quot;aggs&quot;: {
+        &quot;page_count&quot;: {
+          &quot;cardinality&quot;: {
+            &quot;field&quot;: &quot;page_url.keyword&quot;
+          }
+        },
+        &quot;top_pages&quot;: {
+          &quot;terms&quot;: {
+            &quot;field&quot;: &quot;page_url.keyword&quot;,
+            &quot;size&quot;: 10
+          }
+        }
+      }
+    }
+  }
+}
+</code></pre></div><p>在这个查询中，我们首先使用 <code>composite</code> 聚合按照用户ID和日期对访问记录进行分组。其中 <code>&quot;date_histogram&quot;</code> 表示将时间戳按照天进行划分。</p> <p>然后，我们在 <code>&quot;user_page_stats&quot;</code> 桶中添加了两个子聚合：</p> <ul><li><code>&quot;page_count&quot;</code> 子聚合使用 <code>cardinality</code> 聚合计算每个用户在每天访问的不同页面数量。</li> <li><code>&quot;top_pages&quot;</code> 子聚合使用 <code>terms</code> 聚合计算每个时间段内访问量最大的前10个页面。</li></ul> <p>执行以上查询后，返回的结果如下所示：</p> <div class="language- extra-class"><pre class="language-text"><code>{
+  ...
+  &quot;aggregations&quot;: {
+    &quot;user_page_stats&quot;: {
+      &quot;buckets&quot;: [
+        {
+          &quot;key&quot;: {
+            &quot;user_id&quot;: &quot;user1&quot;,
+            &quot;date&quot;: 16804
+          },
+          &quot;doc_count&quot;: 2,
+          &quot;page_count&quot;: {
+            &quot;value&quot;: 2
+          },
+          &quot;top_pages&quot;: {
+            &quot;buckets&quot;: [
+              {
+                &quot;key&quot;: &quot;/product/123&quot;,
+                &quot;doc_count&quot;: 1
+              },
+              {
+                &quot;key&quot;: &quot;/blog/456&quot;,
+                &quot;doc_count&quot;: 1
+              }
+            ]
+          }
+        },
+        {
+          &quot;key&quot;: {
+            &quot;user_id&quot;: &quot;user1&quot;,
+            &quot;date&quot;: 16805
+          },
+          &quot;doc_count&quot;: 1,
+          &quot;page_count&quot;: {
+            &quot;value&quot;: 1
+          },
+          &quot;top_pages&quot;: {
+            &quot;buckets&quot;: [
+              {
+                &quot;key&quot;: &quot;/product/789&quot;,
+                &quot;doc_count&quot;: 1
+              }
+            ]
+          }
+        },
+        {
+          &quot;key&quot;: {
+            &quot;user_id&quot;: &quot;user2&quot;,
+            &quot;date&quot;: 16805
+          },
+          &quot;doc_count&quot;: 1,
+          &quot;page_count&quot;: {
+            &quot;value&quot;: 1
+          },
+          &quot;top_pages&quot;: {
+            &quot;buckets&quot;: [
+              {
+                &quot;key&quot;: &quot;/blog/789&quot;,
+                &quot;doc_count&quot;: 1
+              }
+            ]
+          }
+        },
+        {
+          &quot;key&quot;: {
+            &quot;user_id&quot;: &quot;user2&quot;,
+            &quot;date&quot;: 16806
+          },
+          &quot;doc_count&quot;: 2,
+          &quot;page_count&quot;: {
+            &quot;value&quot;: 2
+          },
+          &quot;top_pages&quot;: {
+            &quot;buckets&quot;: [
+              {
+                &quot;key&quot;: &quot;/product/123&quot;,
+                &quot;doc_count&quot;: 1
+              },
+              {
+                &quot;key&quot;: &quot;/product/456&quot;,
+                &quot;doc_count&quot;: 1
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
+</code></pre></div><p>根据返回结果可以看出，这个查询实现了我们的需求。例如，针对用户 &quot;user1&quot;，在日期 &quot;2023-06-01&quot;，他访问了2个不同的页面（&quot;/product/123&quot; 和 &quot;/blog/456&quot;），在日期 &quot;2023-06-02&quot;，他访问了1个不同的页面（&quot;/product/789&quot;）。而在每个日期内，他访问量最大的前10个页面，也被正确地计算了出来。</p> <p>这个示例展示了如何使用Metric聚合对Elasticsearch中的数据进行分析和统计。需要注意的是，具体的聚合方式和参数取决于我们的需求和数据特征。</p></div></article> <section class="post-meta main-div" data-v-4e23451f><section class="post-date clearfix" data-v-4e23451f><span class="create-date" data-v-4e23451f>
+      发布时间 : 2023-06-17
+    </span> <!----></section> <section class="post-links" data-v-4e23451f><a href="/posts/2023/06/16/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B8%83-%E8%81%9A%E5%90%88.html" class="post-link" data-v-4e23451f>
+      上一篇 : ElasticSearch学习笔记(七) 聚合
+    </a> <a href="/posts/2023/06/18/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%8D%81-%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2%E4%B9%8Bpipline.html" class="post-link" data-v-4e23451f>
+      下一篇 : ElasticSearch学习笔记(十) 聚合查询之pipeline
+    </a></section></section> <div id="post-comments" class="main-div"><!----></div></div></main> <aside class="aside" data-v-6cd81e6a><div class="info-card main-div" data-v-3da8ff8d data-v-6cd81e6a><div class="info-card-header" data-v-3da8ff8d><img src="/assets/img/avatar.jpg" alt="yang" class="info-avatar" data-v-3da8ff8d></div> <div class="info-card-body" data-v-3da8ff8d><section class="info-nickname" data-v-3da8ff8d>
+      yang
+    </section> <!----> <section class="info-contact" data-v-3da8ff8d><!----> <!----> <!----></section></div> <div class="info-card-footer" data-v-3da8ff8d><section class="info-sns clearfix" data-v-3da8ff8d></section></div></div> <div class="post-nav-card main-div" style="position:relative;top:0;width:0px;" data-v-6cd81e6a><div class="post-nav-contents"><svg class="icon"><title>book</title><use xlink:href="#icon-book"></use></svg> <span>文章目录</span> <div class="post-nav-toc"><ul><li><a href="/posts/2023/06/17/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B9%9D-%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2%E4%B9%8Bmetric.html#metric聚合">Metric聚合</a></li><li><a href="/posts/2023/06/17/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B9%9D-%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2%E4%B9%8Bmetric.html#完整示例">完整示例</a></li></ul></div></div> <div class="post-nav-comments"><svg class="icon"><title>comment</title><use xlink:href="#icon-comment"></use></svg> <a href="/posts/2023/06/17/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B9%9D-%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2%E4%B9%8Bmetric.html#post-comments">
+      评论
+    </a></div></div></aside></div> <footer class="footer" data-v-1114308c><p class="sns-links" data-v-1114308c></p> <p data-v-1114308c><span data-v-1114308c>Powered by </span> <a href="https://vuepress.vuejs.org" target="_blank" data-v-1114308c>
+      Vuepress
+    </a></p></footer></div><div class="global-ui"><!----><!----></div></div>
+    <script src="/assets/js/vendor.2.672efb23.js" defer></script><script src="/assets/js/14.73204498.js" defer></script><script src="/assets/js/vendor.1.3967ac5f.js" defer></script><script src="/assets/js/vendor.0.4df80900.js" defer></script><script src="/assets/js/app.a8b8daa8.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>ElasticSearch学习笔记(五) 利用扩展词、停止词和同义词提高搜索准确性 | yang的博客</title>
+    <meta name="description" content="yang的博客">
+    <link rel="icon" href="/assets/img/avatar.jpg">
+    
+    <link rel="preload" href="/assets/css/3.styles.672efb23.css" as="style"><link rel="preload" href="/assets/js/vendor.2.672efb23.js" as="script"><link rel="preload" href="/assets/js/vendor.1.3967ac5f.js" as="script"><link rel="preload" href="/assets/css/0.styles.4df80900.css" as="style"><link rel="preload" href="/assets/js/vendor.0.4df80900.js" as="script"><link rel="preload" href="/assets/js/app.a8b8daa8.js" as="script"><link rel="preload" href="/assets/js/9.a3b29316.js" as="script"><link rel="prefetch" href="/assets/css/4.styles.3b621091.css"><link rel="prefetch" href="/assets/js/10.8478bdff.js"><link rel="prefetch" href="/assets/js/11.ee26bcc0.js"><link rel="prefetch" href="/assets/js/12.55cc93a1.js"><link rel="prefetch" href="/assets/js/13.acefd014.js"><link rel="prefetch" href="/assets/js/14.73204498.js"><link rel="prefetch" href="/assets/js/15.259a8f6b.js"><link rel="prefetch" href="/assets/js/16.b7a2ccfa.js"><link rel="prefetch" href="/assets/js/17.91927fe4.js"><link rel="prefetch" href="/assets/js/18.31d42ce8.js"><link rel="prefetch" href="/assets/js/19.5779d05f.js"><link rel="prefetch" href="/assets/js/20.0f83e315.js"><link rel="prefetch" href="/assets/js/21.e5ef8958.js"><link rel="prefetch" href="/assets/js/22.9ef640bd.js"><link rel="prefetch" href="/assets/js/23.3f7faed0.js"><link rel="prefetch" href="/assets/js/24.010d36ab.js"><link rel="prefetch" href="/assets/js/25.e648bc8e.js"><link rel="prefetch" href="/assets/js/26.7ec4c43f.js"><link rel="prefetch" href="/assets/js/27.ca7ce5ff.js"><link rel="prefetch" href="/assets/js/28.b471d502.js"><link rel="prefetch" href="/assets/js/4.3b621091.js"><link rel="prefetch" href="/assets/js/5.070e33ea.js"><link rel="prefetch" href="/assets/js/6.d4b3b4c1.js"><link rel="prefetch" href="/assets/js/7.44b1e335.js"><link rel="prefetch" href="/assets/js/8.5e5bb804.js">
+    <link rel="stylesheet" href="/assets/css/3.styles.672efb23.css"><link rel="stylesheet" href="/assets/css/0.styles.4df80900.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div id="vuepress-theme-meteorlxy"><header class="header" data-v-0539f1bd><div data-v-39c72c19 data-v-0539f1bd><nav class="navbar" data-v-39c72c19><div class="container" data-v-39c72c19><a href="/" class="router-link-active" data-v-39c72c19><span class="navbar-site-name" data-v-39c72c19>
+          yang的博客
+        </span></a> <div class="navbar-toggler" data-v-39c72c19><svg class="icon" style="font-size:1.2em;" data-v-39c72c19 data-v-39c72c19><title data-v-39c72c19 data-v-39c72c19>menu</title><use xlink:href="#icon-menu" data-v-39c72c19 data-v-39c72c19></use></svg></div> <div class="navbar-links" data-v-39c72c19><a href="/" class="navbar-link" data-v-39c72c19>
+            主页
+          </a><a href="/posts/" class="navbar-link router-link-active" data-v-39c72c19>
+            文章
+          </a></div></div></nav> <div class="navbar-holder" style="display:none;" data-v-39c72c19></div></div> <div class="banner" data-v-98d6aa8c data-v-0539f1bd data-v-0539f1bd><div class="container" data-v-98d6aa8c><div class="center" data-v-98d6aa8c><h1 data-v-98d6aa8c data-v-0539f1bd>
+          ElasticSearch学习笔记(五) 利用扩展词、停止词和同义词提高搜索准确性
+        </h1></div></div></div></header> <div class="container clearfix show-aside" data-v-6cd81e6a data-v-6cd81e6a><main class="main" data-v-6cd81e6a><div class="post" data-v-6cd81e6a data-v-6cd81e6a><section class="post-meta main-div" data-v-4e23451f><section class="post-date clearfix" data-v-4e23451f><span class="create-date" data-v-4e23451f>
+      发布时间 : 2023-06-10
+    </span> <!----></section> <section class="post-links" data-v-4e23451f><a href="/posts/2023/06/10/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9B%9B-ik%E5%88%86%E8%AF%8D.html" class="post-link" data-v-4e23451f>
+      上一篇 : ElasticSearch学习笔记(四) IK分词
+    </a> <a href="/posts/2023/06/14/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%BA%94-%E7%B4%A2%E5%BC%95%E6%A8%A1%E6%9D%BF.html" class="post-link" data-v-4e23451f>
+      下一篇 : ElasticSearch学习笔记(五)索引模板
+    </a></section></section> <article class="main-div"><div class="post-content content content__default"><p>Elasticsearch是一款强大的搜索和分析引擎，具备高效、稳定、可伸缩等特性。但在处理海量数据时，搜索过程可能会遇到性能问题或搜索结果不够准确的情况。为此，针对Elasticsearch搜索结果进行优化就成为了非常关键的任务。在中文搜索的时候我们可以使用合适的扩展词、停止词和同义词来提高搜索的准确性。</p> <p>扩展词和停止词我们都可以在ik分词的插件目录中配置</p> <ul><li>修改IKAnalyzer.cfg.xml</li></ul> <div class="language-xml extra-class"><pre class="language-xml"><code><span class="token prolog">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="token doctype">&lt;!DOCTYPE properties SYSTEM &quot;http://java.sun.com/dtd/properties.dtd&quot;&gt;</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>properties</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>comment</span><span class="token punctuation">&gt;</span></span>IK Analyzer 扩展配置<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>comment</span><span class="token punctuation">&gt;</span></span>
+    <span class="token comment">&lt;!--用户可以在这里配置自己的扩展字典 --&gt;</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>entry</span> <span class="token attr-name">key</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">&quot;</span>ext_dict<span class="token punctuation">&quot;</span></span><span class="token punctuation">&gt;</span></span>ext_main.dic<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>entry</span><span class="token punctuation">&gt;</span></span>
+     <span class="token comment">&lt;!--用户可以在这里配置自己的扩展停止词字典--&gt;</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>entry</span> <span class="token attr-name">key</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">&quot;</span>ext_stopwords<span class="token punctuation">&quot;</span></span><span class="token punctuation">&gt;</span></span>stopword.dic<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>entry</span><span class="token punctuation">&gt;</span></span>
+    <span class="token comment">&lt;!--用户可以在这里配置远程扩展字典 --&gt;</span>
+    <span class="token comment">&lt;!-- &lt;entry key=&quot;remote_ext_dict&quot;&gt;words_location&lt;/entry&gt; --&gt;</span>
+    <span class="token comment">&lt;!--用户可以在这里配置远程扩展停止词字典--&gt;</span>
+    <span class="token comment">&lt;!-- &lt;entry key=&quot;remote_ext_stopwords&quot;&gt;words_location&lt;/entry&gt; --&gt;</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>properties</span><span class="token punctuation">&gt;</span></span>
+</code></pre></div><p>修改本地配置，每一次修改都需要重启Elasticsearch服务才会生效。我们也可以配置成远程的自定义词库，或者使用数据库加载的方式来通过一些代码实现热更新。</p> <h2 id="扩展词"><a href="#扩展词" aria-hidden="true" class="header-anchor">#</a> 扩展词</h2> <p>扩展词是指在分词时添加一些额外的词语，例如特定的品牌名称、产品型号或关键字等。对于这些具有特殊含义的词语，如果不将它们作为单独的分词处理，则可能会导致搜索结果的误差或缺失。通过将这些词语添加到ik分词器的扩展词典中，可以优化分词效果，提高搜索结果的可靠性。</p> <p>如修改ext_main.dic文件添加如下内容</p> <div class="language- extra-class"><pre class="language-text"><code>苹果
+三星
+红米
+</code></pre></div><h2 id="停止词"><a href="#停止词" aria-hidden="true" class="header-anchor">#</a> 停止词</h2> <p>停止词是指在搜索过程中应该被忽略的常见词语，例如“的”、“是”、“一”等。由于这些词语出现频率较高但没有实际意义，如果将其纳入搜索范围，则会增加搜索时间和成本，而且可能会干扰搜索结果的准确性。因此，将这些词语添加到ik分词器的停止词词典中，可以减少搜索时间和成本，提高搜索结果的可靠性。</p> <p>如修改stopword.dic文件添加如下内容</p> <div class="language- extra-class"><pre class="language-text"><code>的
+是
+一
+</code></pre></div><p>在这个设置中，我们使用了一个名为“stop_filter”的停止词过滤器，并将其添加到了ik分词器的过滤器列表中。在使用查询时，elasticsearch会自动忽略停止词，从而减少搜索时间和成本，并提高搜索结果的可靠性。</p> <h2 id="同义词"><a href="#同义词" aria-hidden="true" class="header-anchor">#</a> 同义词</h2> <p>同义词是指在语义上和搜索关键词相近或等同的词语。例如，在搜索“手机”时，可能会出现类似“智能手机”、“电话”等同义词词语，如果这些同义词没有被正确处理，则可能导致搜索结果的误差或缺失。通过添加同义词过滤器，可以将文本中的同义词统一替换为一个主要关键词，从而优化搜索效果。</p> <p>具体操作如下：</p> <ul><li>在elasticsearch的安装目录下创建一个名为“analysis”的目录，用于存放同义词文件。</li> <li>创建一个名为synonyms.txt的文件，并将需要添加的同义词添加到文件中，例如：</li></ul> <div class="language- extra-class"><pre class="language-text"><code>手机,电话
+苹果,iphone
+</code></pre></div><ul><li>将同义词文件路径添加到ik分词器设置中：</li></ul> <div class="language- extra-class"><pre class="language-text"><code>{
+  &quot;index&quot;: {
+    &quot;analysis&quot;: {
+      &quot;analyzer&quot;: {
+        &quot;ik_syno_analyzer&quot;: {
+          &quot;tokenizer&quot;: &quot;ik_max_word&quot;,
+          &quot;filter&quot;: [
+            &quot;synonym_filter&quot;,
+            &quot;stop_filter&quot;,
+            &quot;ext_words_filter&quot;
+          ]
+        }
+      },
+      &quot;filter&quot;: {
+        &quot;synonym_filter&quot;: {
+          &quot;type&quot;: &quot;synonym&quot;,
+          &quot;synonyms_path&quot;: &quot;analysis/synonyms.txt&quot;
+        }
+      }
+    }
+  }
+}
+</code></pre></div><p>在这个设置中，我们使用了一个名为“synonym_filter”的同义词过滤器，并将其添加到了ik分词器的过滤器列表中。在使用查询时，elasticsearch会自动将同义词替换为主要关键词，从而统一搜索语义，提高搜索结果的准确性和召回率。</p> <p>除了上述三种技术之外，还有许多其他的搜索优化手段，如缓存、索引结构优化、查询优化等。在实际应用中，需要综合考虑各种因素，选择合适的工具和技术手段，以提高搜索效率和准确性。</p> <p>总之，利用扩展词、停止词和同义词可以有效地优化Elasticsearch搜索结果。在实际应用中，需要根据具体业务需求进行调整和优化，以提高搜索效率和准确性。</p></div></article> <section class="post-meta main-div" data-v-4e23451f><section class="post-date clearfix" data-v-4e23451f><span class="create-date" data-v-4e23451f>
+      发布时间 : 2023-06-10
+    </span> <!----></section> <section class="post-links" data-v-4e23451f><a href="/posts/2023/06/10/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9B%9B-ik%E5%88%86%E8%AF%8D.html" class="post-link" data-v-4e23451f>
+      上一篇 : ElasticSearch学习笔记(四) IK分词
+    </a> <a href="/posts/2023/06/14/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%BA%94-%E7%B4%A2%E5%BC%95%E6%A8%A1%E6%9D%BF.html" class="post-link" data-v-4e23451f>
+      下一篇 : ElasticSearch学习笔记(五)索引模板
+    </a></section></section> <div id="post-comments" class="main-div"><!----></div></div></main> <aside class="aside" data-v-6cd81e6a><div class="info-card main-div" data-v-3da8ff8d data-v-6cd81e6a><div class="info-card-header" data-v-3da8ff8d><img src="/assets/img/avatar.jpg" alt="yang" class="info-avatar" data-v-3da8ff8d></div> <div class="info-card-body" data-v-3da8ff8d><section class="info-nickname" data-v-3da8ff8d>
+      yang
+    </section> <!----> <section class="info-contact" data-v-3da8ff8d><!----> <!----> <!----></section></div> <div class="info-card-footer" data-v-3da8ff8d><section class="info-sns clearfix" data-v-3da8ff8d></section></div></div> <div class="post-nav-card main-div" style="position:relative;top:0;width:0px;" data-v-6cd81e6a><div class="post-nav-contents"><svg class="icon"><title>book</title><use xlink:href="#icon-book"></use></svg> <span>文章目录</span> <div class="post-nav-toc"><ul><li><a href="/posts/2023/06/10/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%88%A9%E7%94%A8%E6%89%A9%E5%B1%95%E8%AF%8D%E3%80%81%E5%81%9C%E6%AD%A2%E8%AF%8D%E5%92%8C%E5%90%8C%E4%B9%89%E8%AF%8D%E6%8F%90%E9%AB%98%E6%90%9C%E7%B4%A2%E5%87%86%E7%A1%AE%E6%80%A7.html#扩展词">扩展词</a></li><li><a href="/posts/2023/06/10/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%88%A9%E7%94%A8%E6%89%A9%E5%B1%95%E8%AF%8D%E3%80%81%E5%81%9C%E6%AD%A2%E8%AF%8D%E5%92%8C%E5%90%8C%E4%B9%89%E8%AF%8D%E6%8F%90%E9%AB%98%E6%90%9C%E7%B4%A2%E5%87%86%E7%A1%AE%E6%80%A7.html#停止词">停止词</a></li><li><a href="/posts/2023/06/10/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%88%A9%E7%94%A8%E6%89%A9%E5%B1%95%E8%AF%8D%E3%80%81%E5%81%9C%E6%AD%A2%E8%AF%8D%E5%92%8C%E5%90%8C%E4%B9%89%E8%AF%8D%E6%8F%90%E9%AB%98%E6%90%9C%E7%B4%A2%E5%87%86%E7%A1%AE%E6%80%A7.html#同义词">同义词</a></li></ul></div></div> <div class="post-nav-comments"><svg class="icon"><title>comment</title><use xlink:href="#icon-comment"></use></svg> <a href="/posts/2023/06/10/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%88%A9%E7%94%A8%E6%89%A9%E5%B1%95%E8%AF%8D%E3%80%81%E5%81%9C%E6%AD%A2%E8%AF%8D%E5%92%8C%E5%90%8C%E4%B9%89%E8%AF%8D%E6%8F%90%E9%AB%98%E6%90%9C%E7%B4%A2%E5%87%86%E7%A1%AE%E6%80%A7.html#post-comments">
+      评论
+    </a></div></div></aside></div> <footer class="footer" data-v-1114308c><p class="sns-links" data-v-1114308c></p> <p data-v-1114308c><span data-v-1114308c>Powered by </span> <a href="https://vuepress.vuejs.org" target="_blank" data-v-1114308c>
+      Vuepress
+    </a></p></footer></div><div class="global-ui"><!----><!----></div></div>
+    <script src="/assets/js/vendor.2.672efb23.js" defer></script><script src="/assets/js/9.a3b29316.js" defer></script><script src="/assets/js/vendor.1.3967ac5f.js" defer></script><script src="/assets/js/vendor.0.4df80900.js" defer></script><script src="/assets/js/app.a8b8daa8.js" defer></script>
+  </body>
+</html>

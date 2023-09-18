@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>ElasticSearch学习笔记(八) 聚合之Bucket详解 | yang的博客</title>
+    <meta name="description" content="yang的博客">
+    <link rel="icon" href="/assets/img/avatar.jpg">
+    
+    <link rel="preload" href="/assets/css/3.styles.672efb23.css" as="style"><link rel="preload" href="/assets/js/vendor.2.672efb23.js" as="script"><link rel="preload" href="/assets/js/vendor.1.3967ac5f.js" as="script"><link rel="preload" href="/assets/css/0.styles.4df80900.css" as="style"><link rel="preload" href="/assets/js/vendor.0.4df80900.js" as="script"><link rel="preload" href="/assets/js/app.a8b8daa8.js" as="script"><link rel="preload" href="/assets/js/13.acefd014.js" as="script"><link rel="prefetch" href="/assets/css/4.styles.3b621091.css"><link rel="prefetch" href="/assets/js/10.8478bdff.js"><link rel="prefetch" href="/assets/js/11.ee26bcc0.js"><link rel="prefetch" href="/assets/js/12.55cc93a1.js"><link rel="prefetch" href="/assets/js/14.73204498.js"><link rel="prefetch" href="/assets/js/15.259a8f6b.js"><link rel="prefetch" href="/assets/js/16.b7a2ccfa.js"><link rel="prefetch" href="/assets/js/17.91927fe4.js"><link rel="prefetch" href="/assets/js/18.31d42ce8.js"><link rel="prefetch" href="/assets/js/19.5779d05f.js"><link rel="prefetch" href="/assets/js/20.0f83e315.js"><link rel="prefetch" href="/assets/js/21.e5ef8958.js"><link rel="prefetch" href="/assets/js/22.9ef640bd.js"><link rel="prefetch" href="/assets/js/23.3f7faed0.js"><link rel="prefetch" href="/assets/js/24.010d36ab.js"><link rel="prefetch" href="/assets/js/25.e648bc8e.js"><link rel="prefetch" href="/assets/js/26.7ec4c43f.js"><link rel="prefetch" href="/assets/js/27.ca7ce5ff.js"><link rel="prefetch" href="/assets/js/28.b471d502.js"><link rel="prefetch" href="/assets/js/4.3b621091.js"><link rel="prefetch" href="/assets/js/5.070e33ea.js"><link rel="prefetch" href="/assets/js/6.d4b3b4c1.js"><link rel="prefetch" href="/assets/js/7.44b1e335.js"><link rel="prefetch" href="/assets/js/8.5e5bb804.js"><link rel="prefetch" href="/assets/js/9.a3b29316.js">
+    <link rel="stylesheet" href="/assets/css/3.styles.672efb23.css"><link rel="stylesheet" href="/assets/css/0.styles.4df80900.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div id="vuepress-theme-meteorlxy"><header class="header" data-v-0539f1bd><div data-v-39c72c19 data-v-0539f1bd><nav class="navbar" data-v-39c72c19><div class="container" data-v-39c72c19><a href="/" class="router-link-active" data-v-39c72c19><span class="navbar-site-name" data-v-39c72c19>
+          yang的博客
+        </span></a> <div class="navbar-toggler" data-v-39c72c19><svg class="icon" style="font-size:1.2em;" data-v-39c72c19 data-v-39c72c19><title data-v-39c72c19 data-v-39c72c19>menu</title><use xlink:href="#icon-menu" data-v-39c72c19 data-v-39c72c19></use></svg></div> <div class="navbar-links" data-v-39c72c19><a href="/" class="navbar-link" data-v-39c72c19>
+            主页
+          </a><a href="/posts/" class="navbar-link router-link-active" data-v-39c72c19>
+            文章
+          </a></div></div></nav> <div class="navbar-holder" style="display:none;" data-v-39c72c19></div></div> <div class="banner" data-v-98d6aa8c data-v-0539f1bd data-v-0539f1bd><div class="container" data-v-98d6aa8c><div class="center" data-v-98d6aa8c><h1 data-v-98d6aa8c data-v-0539f1bd>
+          ElasticSearch学习笔记(八) 聚合之Bucket详解
+        </h1></div></div></div></header> <div class="container clearfix show-aside" data-v-6cd81e6a data-v-6cd81e6a><main class="main" data-v-6cd81e6a><div class="post" data-v-6cd81e6a data-v-6cd81e6a><section class="post-meta main-div" data-v-4e23451f><section class="post-date clearfix" data-v-4e23451f><span class="create-date" data-v-4e23451f>
+      发布时间 : 2023-06-16
+    </span> <!----></section> <section class="post-links" data-v-4e23451f><a href="/posts/2023/06/15/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%85%AD-%E7%B4%A2%E5%BC%95%E5%88%AB%E5%90%8D.html" class="post-link" data-v-4e23451f>
+      上一篇 : ElasticSearch学习笔记(六)索引别名
+    </a> <a href="/posts/2023/06/16/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B8%83-%E8%81%9A%E5%90%88.html" class="post-link" data-v-4e23451f>
+      下一篇 : ElasticSearch学习笔记(七) 聚合
+    </a></section></section> <article class="main-div"><div class="post-content content content__default"><p>​</p> <p>Elasticsearch 聚合（Aggregation）是 Elasticsearch 中用于处理搜索结果的重要工具之一。它可以帮助我们对搜索结果进行各种数据统计和分析，以便更好地理解搜索结果数据的特征和趋势。</p> <p>当我们需要对 Elasticsearch 中的文档集合进行分组计算时，就需要使用到 Bucket（桶）聚合。Bucket 聚合是 Elasticsearch 中一种基于文档集合进行切分的聚合方式，它将文档集合分成多个 bucket，并对每个 bucket 进行计算和分析。</p> <p>Bucket 聚合可以按照文档的字段值、时间范围、地理位置等多种方式来进行切分，并提供丰富的聚合操作来计算每个 bucket 的指标。</p> <p>下面我们使用一个商品索引的数据来演示几种常用的Bucket聚合用法</p> <div class="language- extra-class"><pre class="language-text"><code>#准备索引及数据
+PUT /product-test
+{
+  &quot;mappings&quot;: {
+    &quot;properties&quot;: {
+      &quot;name&quot;: {
+        &quot;type&quot;: &quot;text&quot;,
+        &quot;analyzer&quot;: &quot;ik_max_word&quot;
+      },
+      &quot;brand&quot;:{
+        &quot;type&quot;: &quot;keyword&quot;
+      },
+      &quot;image&quot;: {
+        &quot;type&quot;: &quot;keyword&quot;
+      },
+      &quot;price&quot;: {
+        &quot;type&quot;: &quot;float&quot;
+      },
+      &quot;quantity&quot;: {
+        &quot;type&quot;: &quot;integer&quot;
+      }
+    }
+  }
+}
+
+POST /product-test/_bulk
+{ &quot;index&quot;: { &quot;_id&quot;: 1 }}
+{ &quot;name&quot;: &quot;苹果12 Pro Max&quot;,&quot;brand&quot;:&quot;apple&quot;, &quot;image&quot;: &quot;https://images.com/iphone12promax.jpg&quot;, &quot;price&quot;: 4000, &quot;quantity&quot;: 50 }
+{ &quot;index&quot;: { &quot;_id&quot;: 2 }}
+{ &quot;name&quot;: &quot;Samsung Galaxy S21 Ultra&quot;,&quot;brand&quot;:&quot;三星&quot;, &quot;image&quot;: &quot;https://images.com/SamsungS21.jpg&quot;, &quot;price&quot;: 6200, &quot;quantity&quot;: 100 }
+{ &quot;index&quot;: { &quot;_id&quot;: 3 }}
+{ &quot;name&quot;: &quot;苹果14 Mini&quot;, &quot;brand&quot;:&quot;apple&quot;,&quot;image&quot;: &quot;https://images.com/iphone14mini.jpg&quot;, &quot;price&quot;: 6999, &quot;quantity&quot;: 200 }
+{ &quot;index&quot;: { &quot;_id&quot;: 4 }}
+{ &quot;name&quot;: &quot;苹果14 Pro Max&quot;, &quot;brand&quot;:&quot;apple&quot;,&quot;image&quot;: &quot;https://images.com/iphone12promax.jpg&quot;, &quot;price&quot;: 8999, &quot;quantity&quot;: 250 }
+{ &quot;index&quot;: { &quot;_id&quot;: 5 }}
+{ &quot;name&quot;: &quot;华为Mate 40 Pro&quot;, &quot;brand&quot;:&quot;华为&quot;,&quot;image&quot;: &quot;https://images.com/HuaweiMate40.jpg&quot;, &quot;price&quot;: 5999, &quot;quantity&quot;: 50 }
+{ &quot;index&quot;: { &quot;_id&quot;: 6 }}
+{ &quot;name&quot;: &quot;小米14&quot;, &quot;brand&quot;:&quot;小米&quot;,&quot;image&quot;: &quot;https://images.com/xiaomi14.jpg&quot;, &quot;price&quot;: 5999, &quot;quantity&quot;: 50 }
+
+</code></pre></div><h2 id="terms-聚合"><a href="#terms-聚合" aria-hidden="true" class="header-anchor">#</a> terms 聚合</h2> <p>terms 聚合将文档集合按照指定字段的值进行分组。</p> <p>例如，我们对商品索引中的品牌字段进行 Terms 聚合，得到每个分类下的商品库存总量。</p> <div class="language-json extra-class"><pre class="language-json"><code>POST /product-test/_search
+<span class="token punctuation">{</span>
+  <span class="token property">&quot;size&quot;</span><span class="token operator">:</span><span class="token number">0</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;aggs&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;brand_bucket&quot;</span><span class="token operator">:</span><span class="token punctuation">{</span>
+       <span class="token property">&quot;terms&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>         
+       <span class="token property">&quot;field&quot;</span><span class="token operator">:</span> <span class="token string">&quot;brand&quot;</span>    
+     <span class="token punctuation">}</span><span class="token punctuation">,</span>
+     <span class="token property">&quot;aggs&quot;</span><span class="token operator">:</span><span class="token punctuation">{</span>
+       <span class="token property">&quot;total_quantity&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token property">&quot;sum&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+            <span class="token property">&quot;field&quot;</span><span class="token operator">:</span> <span class="token string">&quot;quantity&quot;</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+     <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>返回结果</p> <div class="language-json extra-class"><pre class="language-json"><code><span class="token punctuation">{</span>
+  <span class="token property">&quot;took&quot;</span> <span class="token operator">:</span> <span class="token number">59</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;timed_out&quot;</span> <span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;_shards&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;total&quot;</span> <span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;successful&quot;</span> <span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;skipped&quot;</span> <span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;failed&quot;</span> <span class="token operator">:</span> <span class="token number">0</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;hits&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;total&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token property">&quot;value&quot;</span> <span class="token operator">:</span> <span class="token number">6</span><span class="token punctuation">,</span>
+      <span class="token property">&quot;relation&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;eq&quot;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;max_score&quot;</span> <span class="token operator">:</span> <span class="token null keyword">null</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;hits&quot;</span> <span class="token operator">:</span> <span class="token punctuation">[</span> <span class="token punctuation">]</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;aggregations&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;brand_bucket&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token property">&quot;doc_count_error_upper_bound&quot;</span> <span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+      <span class="token property">&quot;sum_other_doc_count&quot;</span> <span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+      <span class="token property">&quot;buckets&quot;</span> <span class="token operator">:</span> <span class="token punctuation">[</span>
+        <span class="token punctuation">{</span>
+          <span class="token property">&quot;key&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;apple&quot;</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;doc_count&quot;</span> <span class="token operator">:</span> <span class="token number">3</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;total_quantity&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+            <span class="token property">&quot;value&quot;</span> <span class="token operator">:</span> <span class="token number">500.0</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">{</span>
+          <span class="token property">&quot;key&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;三星&quot;</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;doc_count&quot;</span> <span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;total_quantity&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+            <span class="token property">&quot;value&quot;</span> <span class="token operator">:</span> <span class="token number">100.0</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">{</span>
+          <span class="token property">&quot;key&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;华为&quot;</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;doc_count&quot;</span> <span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;total_quantity&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+            <span class="token property">&quot;value&quot;</span> <span class="token operator">:</span> <span class="token number">50.0</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">{</span>
+          <span class="token property">&quot;key&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;小米&quot;</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;doc_count&quot;</span> <span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;total_quantity&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+            <span class="token property">&quot;value&quot;</span> <span class="token operator">:</span> <span class="token number">50.0</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">]</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+</code></pre></div><p>在结果中，我们可以看到按照品牌字段进行划分，得到了4个品牌的聚合结果，同时将每个品牌的库存总量一起返回了出来。</p> <h2 id="range-聚合"><a href="#range-聚合" aria-hidden="true" class="header-anchor">#</a> range 聚合</h2> <p>range 聚合将文档集合按照指定范围进行分组。</p> <p>例如，我们可以使用下面的查询语句将商品索引中所有文档按照指定价格分为三个区间，并返回每个区间中文档的库存数量的和：</p> <div class="language-json extra-class"><pre class="language-json"><code>POST /product-test/_search
+<span class="token punctuation">{</span>
+  <span class="token property">&quot;size&quot;</span><span class="token operator">:</span><span class="token number">0</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;aggs&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;price_range&quot;</span><span class="token operator">:</span><span class="token punctuation">{</span>
+       <span class="token property">&quot;range&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>         
+       <span class="token property">&quot;field&quot;</span><span class="token operator">:</span> <span class="token string">&quot;price&quot;</span>  <span class="token punctuation">,</span>
+       <span class="token property">&quot;ranges&quot;</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+          <span class="token punctuation">{</span>
+            <span class="token property">&quot;from&quot;</span><span class="token operator">:</span><span class="token number">0</span><span class="token punctuation">,</span>
+            <span class="token property">&quot;to&quot;</span><span class="token operator">:</span> <span class="token number">5000</span>
+          <span class="token punctuation">}</span><span class="token punctuation">,</span>
+          <span class="token punctuation">{</span>
+            <span class="token property">&quot;from&quot;</span><span class="token operator">:</span> <span class="token number">5001</span><span class="token punctuation">,</span>
+            <span class="token property">&quot;to&quot;</span><span class="token operator">:</span> <span class="token number">8000</span>
+          <span class="token punctuation">}</span><span class="token punctuation">,</span>
+          <span class="token punctuation">{</span>
+            <span class="token property">&quot;from&quot;</span><span class="token operator">:</span> <span class="token number">8001</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">]</span>
+     <span class="token punctuation">}</span><span class="token punctuation">,</span>
+     <span class="token property">&quot;aggs&quot;</span><span class="token operator">:</span><span class="token punctuation">{</span>
+       <span class="token property">&quot;total_quantity&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token property">&quot;sum&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+            <span class="token property">&quot;field&quot;</span><span class="token operator">:</span> <span class="token string">&quot;quantity&quot;</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+     <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>返回结果</p> <div class="language-json extra-class"><pre class="language-json"><code><span class="token punctuation">{</span>
+  <span class="token property">&quot;took&quot;</span> <span class="token operator">:</span> <span class="token number">3</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;timed_out&quot;</span> <span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;_shards&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;total&quot;</span> <span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;successful&quot;</span> <span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;skipped&quot;</span> <span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;failed&quot;</span> <span class="token operator">:</span> <span class="token number">0</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;hits&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;total&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token property">&quot;value&quot;</span> <span class="token operator">:</span> <span class="token number">6</span><span class="token punctuation">,</span>
+      <span class="token property">&quot;relation&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;eq&quot;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;max_score&quot;</span> <span class="token operator">:</span> <span class="token null keyword">null</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;hits&quot;</span> <span class="token operator">:</span> <span class="token punctuation">[</span> <span class="token punctuation">]</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;aggregations&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;price_range&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token property">&quot;buckets&quot;</span> <span class="token operator">:</span> <span class="token punctuation">[</span>
+        <span class="token punctuation">{</span>
+          <span class="token property">&quot;key&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;0.0-5000.0&quot;</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;from&quot;</span> <span class="token operator">:</span> <span class="token number">0.0</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;to&quot;</span> <span class="token operator">:</span> <span class="token number">5000.0</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;doc_count&quot;</span> <span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;total_quantity&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+            <span class="token property">&quot;value&quot;</span> <span class="token operator">:</span> <span class="token number">50.0</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">{</span>
+          <span class="token property">&quot;key&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;5001.0-8000.0&quot;</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;from&quot;</span> <span class="token operator">:</span> <span class="token number">5001.0</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;to&quot;</span> <span class="token operator">:</span> <span class="token number">8000.0</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;doc_count&quot;</span> <span class="token operator">:</span> <span class="token number">4</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;total_quantity&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+            <span class="token property">&quot;value&quot;</span> <span class="token operator">:</span> <span class="token number">400.0</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">{</span>
+          <span class="token property">&quot;key&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;8001.0-*&quot;</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;from&quot;</span> <span class="token operator">:</span> <span class="token number">8001.0</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;doc_count&quot;</span> <span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;total_quantity&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+            <span class="token property">&quot;value&quot;</span> <span class="token operator">:</span> <span class="token number">250.0</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">]</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+</code></pre></div><p>可以看到，按照商品价格指定范围进行划分，得到了三个聚合结果，每个聚合结果表示一个价格区间内的商品数量和库存总和。</p> <h2 id="histogram-聚合"><a href="#histogram-聚合" aria-hidden="true" class="header-anchor">#</a> histogram 聚合</h2> <p>histogram 聚合操作会根据指定的某个字段的数值范围对文档集合进行分组。</p> <p>例如，我们可以使用下面的查询语句将商品索引中所有文档按照价格分组,每个分组的范围为2000：</p> <div class="language-json extra-class"><pre class="language-json"><code>POST /product-test/_search
+<span class="token punctuation">{</span>
+  <span class="token property">&quot;size&quot;</span><span class="token operator">:</span><span class="token number">0</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;aggs&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;price_histogram&quot;</span><span class="token operator">:</span><span class="token punctuation">{</span>
+       <span class="token property">&quot;histogram&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>         
+       <span class="token property">&quot;field&quot;</span><span class="token operator">:</span> <span class="token string">&quot;price&quot;</span><span class="token punctuation">,</span>     
+       <span class="token property">&quot;interval&quot;</span><span class="token operator">:</span> <span class="token number">2000</span>     
+     <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>返回结果</p> <div class="language-json extra-class"><pre class="language-json"><code><span class="token punctuation">{</span>
+  <span class="token property">&quot;took&quot;</span> <span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;timed_out&quot;</span> <span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;_shards&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;total&quot;</span> <span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;successful&quot;</span> <span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;skipped&quot;</span> <span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;failed&quot;</span> <span class="token operator">:</span> <span class="token number">0</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;hits&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;total&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token property">&quot;value&quot;</span> <span class="token operator">:</span> <span class="token number">6</span><span class="token punctuation">,</span>
+      <span class="token property">&quot;relation&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;eq&quot;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;max_score&quot;</span> <span class="token operator">:</span> <span class="token null keyword">null</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;hits&quot;</span> <span class="token operator">:</span> <span class="token punctuation">[</span> <span class="token punctuation">]</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;aggregations&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;price_histogram&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token property">&quot;buckets&quot;</span> <span class="token operator">:</span> <span class="token punctuation">[</span>
+        <span class="token punctuation">{</span>
+          <span class="token property">&quot;key&quot;</span> <span class="token operator">:</span> <span class="token number">4000.0</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;doc_count&quot;</span> <span class="token operator">:</span> <span class="token number">3</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">{</span>
+          <span class="token property">&quot;key&quot;</span> <span class="token operator">:</span> <span class="token number">6000.0</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;doc_count&quot;</span> <span class="token operator">:</span> <span class="token number">2</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">{</span>
+          <span class="token property">&quot;key&quot;</span> <span class="token operator">:</span> <span class="token number">8000.0</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;doc_count&quot;</span> <span class="token operator">:</span> <span class="token number">1</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">]</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+</code></pre></div><p>可以看到，按照商品价格区间进行划分，得到了三个聚合结果，每个聚合结果表示一个价格区间内的商品数量。</p> <h2 id="ip-range-聚合"><a href="#ip-range-聚合" aria-hidden="true" class="header-anchor">#</a> ip_range 聚合</h2> <p>ip_range 聚合将文档集合按照 IP 地址范围进行分组。</p> <p>例如，我们可以使用下面的查询语句将 <code>ip_address</code> 索引中所有文档按照 IP 地址的范围分为两个区间，并返回每个区间中文档的数量：</p> <div class="language-json extra-class"><pre class="language-json"><code>GET /ip_address/_search
+<span class="token punctuation">{</span>
+  <span class="token property">&quot;size&quot;</span><span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;aggs&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;ip_ranges&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token property">&quot;ip_range&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token property">&quot;field&quot;</span><span class="token operator">:</span> <span class="token string">&quot;ip_address&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;ranges&quot;</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+          <span class="token punctuation">{</span>
+            <span class="token property">&quot;from&quot;</span><span class="token operator">:</span> <span class="token string">&quot;10.0.0.0&quot;</span><span class="token punctuation">,</span>
+            <span class="token property">&quot;to&quot;</span><span class="token operator">:</span> <span class="token string">&quot;10.255.255.255&quot;</span>
+          <span class="token punctuation">}</span><span class="token punctuation">,</span>
+          <span class="token punctuation">{</span>
+            <span class="token property">&quot;from&quot;</span><span class="token operator">:</span> <span class="token string">&quot;192.168.0.0&quot;</span><span class="token punctuation">,</span>
+            <span class="token property">&quot;to&quot;</span><span class="token operator">:</span> <span class="token string">&quot;192.168.255.255&quot;</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">]</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><h2 id="geohash-grid-聚合"><a href="#geohash-grid-聚合" aria-hidden="true" class="header-anchor">#</a> geohash_grid 聚合</h2> <p>geohash_grid 聚合将地理坐标转换为 geohash，并按照 geohash 前缀进行分组。</p> <p>例如，我们可以使用下面的查询语句将 <code>location</code> 索引中所有文档按照经纬度进行划分，返回每个 geohash 前缀中文档的数量：</p> <div class="language-json extra-class"><pre class="language-json"><code>GET /location/_search
+<span class="token punctuation">{</span>
+  <span class="token property">&quot;size&quot;</span><span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;aggs&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;locations&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token property">&quot;geohash_grid&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token property">&quot;field&quot;</span><span class="token operator">:</span> <span class="token string">&quot;coordinates&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;precision&quot;</span><span class="token operator">:</span> <span class="token number">5</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><h2 id="filters-聚合"><a href="#filters-聚合" aria-hidden="true" class="header-anchor">#</a> filters 聚合</h2> <p>filters 聚合根据指定条件对文档集合进行分组。</p> <p>例如，我们可以使用下面的查询语句将商品索引中品牌为'apple' 的数据统计出来并计算库存总和：</p> <div class="language-json extra-class"><pre class="language-json"><code>POST /product-test/_search
+<span class="token punctuation">{</span>
+  <span class="token property">&quot;size&quot;</span><span class="token operator">:</span><span class="token number">0</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;aggs&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;brand_filter&quot;</span><span class="token operator">:</span><span class="token punctuation">{</span>
+       <span class="token property">&quot;filters&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>         
+        <span class="token property">&quot;filters&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token property">&quot;apple&quot;</span><span class="token operator">:</span><span class="token punctuation">{</span>
+            <span class="token property">&quot;term&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+              <span class="token property">&quot;brand&quot;</span><span class="token operator">:</span> <span class="token string">&quot;apple&quot;</span>
+            <span class="token punctuation">}</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>    
+     <span class="token punctuation">}</span><span class="token punctuation">,</span>
+     <span class="token property">&quot;aggs&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+       <span class="token property">&quot;total_quantity&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+         <span class="token property">&quot;sum&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+           <span class="token property">&quot;field&quot;</span><span class="token operator">:</span> <span class="token string">&quot;quantity&quot;</span>
+         <span class="token punctuation">}</span>
+       <span class="token punctuation">}</span>
+     <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>返回结果</p> <div class="language-json extra-class"><pre class="language-json"><code><span class="token punctuation">{</span>
+  <span class="token property">&quot;took&quot;</span> <span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;timed_out&quot;</span> <span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;_shards&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;total&quot;</span> <span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;successful&quot;</span> <span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;skipped&quot;</span> <span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;failed&quot;</span> <span class="token operator">:</span> <span class="token number">0</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;hits&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;total&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token property">&quot;value&quot;</span> <span class="token operator">:</span> <span class="token number">6</span><span class="token punctuation">,</span>
+      <span class="token property">&quot;relation&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;eq&quot;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;max_score&quot;</span> <span class="token operator">:</span> <span class="token null keyword">null</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;hits&quot;</span> <span class="token operator">:</span> <span class="token punctuation">[</span> <span class="token punctuation">]</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;aggregations&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;brand_filter&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token property">&quot;buckets&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token property">&quot;apple&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token property">&quot;doc_count&quot;</span> <span class="token operator">:</span> <span class="token number">3</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;total_quantity&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+            <span class="token property">&quot;value&quot;</span> <span class="token operator">:</span> <span class="token number">500.0</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+</code></pre></div><h2 id="significant-terms-聚合"><a href="#significant-terms-聚合" aria-hidden="true" class="header-anchor">#</a> significant_terms 聚合</h2> <p>significant_terms 聚合用于找出一个文档集合中比其他文档集合更加显著的词语或短语。</p> <p>例如，我们可以使用下面的查询语句在 <code>news</code> 索引中所有文档的 <code>content</code> 字段中找出最具有显著性的词语或短语：</p> <div class="language-json extra-class"><pre class="language-json"><code>GET /news/_search
+<span class="token punctuation">{</span>
+  <span class="token property">&quot;size&quot;</span><span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;aggs&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;significant_terms&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token property">&quot;significant_terms&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token property">&quot;field&quot;</span><span class="token operator">:</span> <span class="token string">&quot;content&quot;</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>Bucket 聚合操作还可以通过嵌套方式进行组合使用，以实现更复杂的数据分析和计算。</p></div></article> <section class="post-meta main-div" data-v-4e23451f><section class="post-date clearfix" data-v-4e23451f><span class="create-date" data-v-4e23451f>
+      发布时间 : 2023-06-16
+    </span> <!----></section> <section class="post-links" data-v-4e23451f><a href="/posts/2023/06/15/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%85%AD-%E7%B4%A2%E5%BC%95%E5%88%AB%E5%90%8D.html" class="post-link" data-v-4e23451f>
+      上一篇 : ElasticSearch学习笔记(六)索引别名
+    </a> <a href="/posts/2023/06/16/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B8%83-%E8%81%9A%E5%90%88.html" class="post-link" data-v-4e23451f>
+      下一篇 : ElasticSearch学习笔记(七) 聚合
+    </a></section></section> <div id="post-comments" class="main-div"><!----></div></div></main> <aside class="aside" data-v-6cd81e6a><div class="info-card main-div" data-v-3da8ff8d data-v-6cd81e6a><div class="info-card-header" data-v-3da8ff8d><img src="/assets/img/avatar.jpg" alt="yang" class="info-avatar" data-v-3da8ff8d></div> <div class="info-card-body" data-v-3da8ff8d><section class="info-nickname" data-v-3da8ff8d>
+      yang
+    </section> <!----> <section class="info-contact" data-v-3da8ff8d><!----> <!----> <!----></section></div> <div class="info-card-footer" data-v-3da8ff8d><section class="info-sns clearfix" data-v-3da8ff8d></section></div></div> <div class="post-nav-card main-div" style="position:relative;top:0;width:0px;" data-v-6cd81e6a><div class="post-nav-contents"><svg class="icon"><title>book</title><use xlink:href="#icon-book"></use></svg> <span>文章目录</span> <div class="post-nav-toc"><ul><li><a href="/posts/2023/06/16/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%85%AB-%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2%E4%B9%8Bbucket.html#terms-聚合">terms 聚合</a></li><li><a href="/posts/2023/06/16/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%85%AB-%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2%E4%B9%8Bbucket.html#range-聚合">range 聚合</a></li><li><a href="/posts/2023/06/16/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%85%AB-%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2%E4%B9%8Bbucket.html#histogram-聚合">histogram 聚合</a></li><li><a href="/posts/2023/06/16/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%85%AB-%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2%E4%B9%8Bbucket.html#ip-range-聚合">ip_range 聚合</a></li><li><a href="/posts/2023/06/16/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%85%AB-%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2%E4%B9%8Bbucket.html#geohash-grid-聚合">geohash_grid 聚合</a></li><li><a href="/posts/2023/06/16/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%85%AB-%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2%E4%B9%8Bbucket.html#filters-聚合">filters 聚合</a></li><li><a href="/posts/2023/06/16/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%85%AB-%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2%E4%B9%8Bbucket.html#significant-terms-聚合">significant_terms 聚合</a></li></ul></div></div> <div class="post-nav-comments"><svg class="icon"><title>comment</title><use xlink:href="#icon-comment"></use></svg> <a href="/posts/2023/06/16/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%85%AB-%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2%E4%B9%8Bbucket.html#post-comments">
+      评论
+    </a></div></div></aside></div> <footer class="footer" data-v-1114308c><p class="sns-links" data-v-1114308c></p> <p data-v-1114308c><span data-v-1114308c>Powered by </span> <a href="https://vuepress.vuejs.org" target="_blank" data-v-1114308c>
+      Vuepress
+    </a></p></footer></div><div class="global-ui"><!----><!----></div></div>
+    <script src="/assets/js/vendor.2.672efb23.js" defer></script><script src="/assets/js/13.acefd014.js" defer></script><script src="/assets/js/vendor.1.3967ac5f.js" defer></script><script src="/assets/js/vendor.0.4df80900.js" defer></script><script src="/assets/js/app.a8b8daa8.js" defer></script>
+  </body>
+</html>

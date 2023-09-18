@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>ElasticSearch学习笔记(三) Es文档基础操作 | yang的博客</title>
+    <meta name="description" content="yang的博客">
+    <link rel="icon" href="/assets/img/avatar.jpg">
+    
+    <link rel="preload" href="/assets/css/3.styles.672efb23.css" as="style"><link rel="preload" href="/assets/js/vendor.2.672efb23.js" as="script"><link rel="preload" href="/assets/js/vendor.1.3967ac5f.js" as="script"><link rel="preload" href="/assets/css/0.styles.4df80900.css" as="style"><link rel="preload" href="/assets/js/vendor.0.4df80900.js" as="script"><link rel="preload" href="/assets/js/app.a8b8daa8.js" as="script"><link rel="preload" href="/assets/js/7.44b1e335.js" as="script"><link rel="prefetch" href="/assets/css/4.styles.3b621091.css"><link rel="prefetch" href="/assets/js/10.8478bdff.js"><link rel="prefetch" href="/assets/js/11.ee26bcc0.js"><link rel="prefetch" href="/assets/js/12.55cc93a1.js"><link rel="prefetch" href="/assets/js/13.acefd014.js"><link rel="prefetch" href="/assets/js/14.73204498.js"><link rel="prefetch" href="/assets/js/15.259a8f6b.js"><link rel="prefetch" href="/assets/js/16.b7a2ccfa.js"><link rel="prefetch" href="/assets/js/17.91927fe4.js"><link rel="prefetch" href="/assets/js/18.31d42ce8.js"><link rel="prefetch" href="/assets/js/19.5779d05f.js"><link rel="prefetch" href="/assets/js/20.0f83e315.js"><link rel="prefetch" href="/assets/js/21.e5ef8958.js"><link rel="prefetch" href="/assets/js/22.9ef640bd.js"><link rel="prefetch" href="/assets/js/23.3f7faed0.js"><link rel="prefetch" href="/assets/js/24.010d36ab.js"><link rel="prefetch" href="/assets/js/25.e648bc8e.js"><link rel="prefetch" href="/assets/js/26.7ec4c43f.js"><link rel="prefetch" href="/assets/js/27.ca7ce5ff.js"><link rel="prefetch" href="/assets/js/28.b471d502.js"><link rel="prefetch" href="/assets/js/4.3b621091.js"><link rel="prefetch" href="/assets/js/5.070e33ea.js"><link rel="prefetch" href="/assets/js/6.d4b3b4c1.js"><link rel="prefetch" href="/assets/js/8.5e5bb804.js"><link rel="prefetch" href="/assets/js/9.a3b29316.js">
+    <link rel="stylesheet" href="/assets/css/3.styles.672efb23.css"><link rel="stylesheet" href="/assets/css/0.styles.4df80900.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div id="vuepress-theme-meteorlxy"><header class="header" data-v-0539f1bd><div data-v-39c72c19 data-v-0539f1bd><nav class="navbar" data-v-39c72c19><div class="container" data-v-39c72c19><a href="/" class="router-link-active" data-v-39c72c19><span class="navbar-site-name" data-v-39c72c19>
+          yang的博客
+        </span></a> <div class="navbar-toggler" data-v-39c72c19><svg class="icon" style="font-size:1.2em;" data-v-39c72c19 data-v-39c72c19><title data-v-39c72c19 data-v-39c72c19>menu</title><use xlink:href="#icon-menu" data-v-39c72c19 data-v-39c72c19></use></svg></div> <div class="navbar-links" data-v-39c72c19><a href="/" class="navbar-link" data-v-39c72c19>
+            主页
+          </a><a href="/posts/" class="navbar-link router-link-active" data-v-39c72c19>
+            文章
+          </a></div></div></nav> <div class="navbar-holder" style="display:none;" data-v-39c72c19></div></div> <div class="banner" data-v-98d6aa8c data-v-0539f1bd data-v-0539f1bd><div class="container" data-v-98d6aa8c><div class="center" data-v-98d6aa8c><h1 data-v-98d6aa8c data-v-0539f1bd>
+          ElasticSearch学习笔记(三) Es文档基础操作
+        </h1></div></div></div></header> <div class="container clearfix show-aside" data-v-6cd81e6a data-v-6cd81e6a><main class="main" data-v-6cd81e6a><div class="post" data-v-6cd81e6a data-v-6cd81e6a><section class="post-meta main-div" data-v-4e23451f><section class="post-date clearfix" data-v-4e23451f><span class="create-date" data-v-4e23451f>
+      发布时间 : 2023-06-09
+    </span> <!----></section> <section class="post-links" data-v-4e23451f><a href="/posts/2023/06/08/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%BA%8C-es%E5%AE%89%E8%A3%85%E5%8F%8A%E7%B4%A2%E5%BC%95%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C.html" class="post-link" data-v-4e23451f>
+      上一篇 : ElasticSearch学习笔记(二) Elasticsearch安装及索引基础操作
+    </a> <a href="/posts/2023/06/10/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9B%9B-ik%E5%88%86%E8%AF%8D.html" class="post-link" data-v-4e23451f>
+      下一篇 : ElasticSearch学习笔记(四) IK分词
+    </a></section></section> <article class="main-div"><div class="post-content content content__default"><p>​	前面了解了Elasticsearch的安装及索引的基本操作。今天我们开始了解Elasticsearch文档的一些基础操作。</p> <h2 id="什么是文档"><a href="#什么是文档" aria-hidden="true" class="header-anchor">#</a> 什么是文档</h2> <p>在Elasticsearch中，文档是索引的基本单位。一个文档代表了一个JSON对象，它包含了一个或多个字段，每个字段有一个字段名和一个字段值。一个索引可以包含多个文档，每个文档都有一个唯一的ID。</p> <h2 id="获取文档"><a href="#获取文档" aria-hidden="true" class="header-anchor">#</a> 获取文档</h2> <p>要获取文档数据，需要向Elasticsearch发送一个HTTP请求，请求方法为<code>GET</code>，</p> <p>请求路径为<code>/{index}/_search</code>，其中<code>index</code>表示索引名称。不添加任何参数执行该请求后，默认会返回10条该索引下的文档数据。</p> <p>也可以通过query指定查询条件，通过from 和size字段来指定分页条件。例如：以下请求可以获取name为手机的商品数据，从第0个开始，取前10个。</p> <div class="language- extra-class"><pre class="language-text"><code>GET /product-test/_search
+{
+  &quot;from&quot;:0,
+  &quot;size&quot;:10,
+  &quot;query&quot;:{
+    &quot;match&quot;: {
+      &quot;name&quot;: &quot;XX&quot;
+    }
+  }
+}
+</code></pre></div><h2 id="创建文档"><a href="#创建文档" aria-hidden="true" class="header-anchor">#</a> 创建文档</h2> <p>要创建一个文档，需要向Elasticsearch发送一个HTTP请求，请求方法为<code>POST</code>，请求路径为<code>/{index}/_doc</code>，其中<code>index</code>表示索引名称。请求体为一个JSON对象，代表了要创建的文档内容。例如，以下请求可以创建一个商品文档：</p> <div class="language- extra-class"><pre class="language-text"><code>POST /product-test/_doc
+{
+  &quot;name&quot;: &quot;手机&quot;,
+  &quot;image&quot;: &quot;http://example.com/1.jpg&quot;,
+  &quot;price&quot;: 1999,
+  &quot;quantity&quot;: 100
+}
+</code></pre></div><p>执行该请求后，Elasticsearch会返回一个JSON对象，包含了创建的文档的相关信息，例如文档的版本号、是否创建成功，同时会返回该文档的&quot;_id&quot;(如下图)。</p> <p><img src="/assets/img/image-20230609105029445.png" alt="image-20230609105029445"></p> <p>在Elasticsearch中，每个文档都有一个唯一的标识符，称为&quot;_id&quot;，它用于标识和引用文档。 &quot;_id&quot;是文档的一部分，它可以在创建文档时指定，也可以由Elasticsearch自动生成。</p> <p>当使用索引API将文档添加到索引中时，可以提供一个&quot;_id&quot;值，如果未提供，则Elasticsearch会自动生成一个&quot;_id&quot;值。 文档的&quot;_id&quot;一旦被分配，就不能更改。</p> <p>要查找或更新文档，必须知道文档的&quot;_id&quot;。 可以使用GET API通过&quot;_id&quot;检索特定文档，也可以使用UPDATE API更新具有特定&quot;_id&quot;的文档。</p> <p>如果我们想创建文档的时候指定&quot;_id&quot;的值,可以通过 PUT  {index}/_doc/{id} 来指定&quot;_id&quot;。</p> <div class="language- extra-class"><pre class="language-text"><code>PUT /product-test/_doc/1
+{
+  &quot;name&quot;: &quot;电脑&quot;,
+  &quot;image&quot;: &quot;https://image.com/1.jpg&quot;,
+  &quot;price&quot;: 5999.99,
+  &quot;quantity&quot;: 100
+}
+</code></pre></div><p>执行 <code>GET /product-test/_search</code> 会返回如下图所示。我们发现name为&quot;电脑&quot;的文档&quot;_id&quot;为我们指定的值。</p> <p><img src="/assets/img/image-20230609110306368.png" alt="image-20230609110306368"></p> <h2 id="根据-id获取文档"><a href="#根据-id获取文档" aria-hidden="true" class="header-anchor">#</a> 根据_id获取文档</h2> <p>如果想根据文档&quot;_id&quot;来获取：请求路径为<code>/{index}/_doc/{id}</code>，其中<code>index</code>表示索引名称，<code>id</code>表示文档ID。执行该请求后，Elasticsearch会返回一个JSON对象，包含了要获取的文档的内容。例如，以下请求可以获取ID为<code>1</code>的商品文档：</p> <div class="language- extra-class"><pre class="language-text"><code>GET /product-test/_doc/1
+</code></pre></div><p>执行该请求后，Elasticsearch会返回一个JSON对象，包含了ID为<code>1</code>的商品文档的内容。</p> <h2 id="更新文档"><a href="#更新文档" aria-hidden="true" class="header-anchor">#</a> 更新文档</h2> <p>要更新一个文档，需要向Elasticsearch发送一个HTTP请求，请求方法为<code>POST</code>或<code>PUT</code>，请求路径为<code>/{index}/_doc/{id}</code>，其中<code>index</code>表示索引名称，<code>id</code>表示文档ID。请求体为一个JSON对象，代表了要更新的文档内容。例如，以下请求可以将ID为<code>1</code>的商品文档的价格更新为<code>1899</code>：</p> <div class="language- extra-class"><pre class="language-text"><code>POST /product-test/_doc/1
+{
+  &quot;doc&quot;: {
+    &quot;price&quot;: 6888
+  }
+}
+</code></pre></div><p>执行该请求后，Elasticsearch会返回一个JSON对象，包含了更新的文档的相关信息，例如文档的版本号、是否更新成功等。</p> <h2 id="删除文档"><a href="#删除文档" aria-hidden="true" class="header-anchor">#</a> 删除文档</h2> <p>要删除一个文档，需要向Elasticsearch发送一个HTTP请求，请求方法为<code>DELETE</code>，请求路径为<code>/{index}/_doc/{id}</code>，其中<code>index</code>表示索引名称，<code>id</code>表示文档ID。执行该请求后，Elasticsearch会删除指定的文档。例如，以下请求可以删除ID为<code>1</code>的商品文档：</p> <div class="language- extra-class"><pre class="language-text"><code>DELETE /product-test/_doc/1
+</code></pre></div><p>执行该请求后，Elasticsearch会返回一个JSON对象，包含了删除的文档的相关信息，例如是否删除成功等。</p> <h2 id="总结"><a href="#总结" aria-hidden="true" class="header-anchor">#</a> 总结</h2> <p>本篇博客介绍了Elasticsearch7的文档基础操作，包括创建文档、更新文档、获取文档和删除文档。在实际使用中，我们可以根据具体需求进行相应的操作，例如搜索、聚合等。熟练掌握这些操作可以帮助我们更好地使用Elasticsearch进行数据分析和搜索。</p></div></article> <section class="post-meta main-div" data-v-4e23451f><section class="post-date clearfix" data-v-4e23451f><span class="create-date" data-v-4e23451f>
+      发布时间 : 2023-06-09
+    </span> <!----></section> <section class="post-links" data-v-4e23451f><a href="/posts/2023/06/08/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%BA%8C-es%E5%AE%89%E8%A3%85%E5%8F%8A%E7%B4%A2%E5%BC%95%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C.html" class="post-link" data-v-4e23451f>
+      上一篇 : ElasticSearch学习笔记(二) Elasticsearch安装及索引基础操作
+    </a> <a href="/posts/2023/06/10/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%9B%9B-ik%E5%88%86%E8%AF%8D.html" class="post-link" data-v-4e23451f>
+      下一篇 : ElasticSearch学习笔记(四) IK分词
+    </a></section></section> <div id="post-comments" class="main-div"><!----></div></div></main> <aside class="aside" data-v-6cd81e6a><div class="info-card main-div" data-v-3da8ff8d data-v-6cd81e6a><div class="info-card-header" data-v-3da8ff8d><img src="/assets/img/avatar.jpg" alt="yang" class="info-avatar" data-v-3da8ff8d></div> <div class="info-card-body" data-v-3da8ff8d><section class="info-nickname" data-v-3da8ff8d>
+      yang
+    </section> <!----> <section class="info-contact" data-v-3da8ff8d><!----> <!----> <!----></section></div> <div class="info-card-footer" data-v-3da8ff8d><section class="info-sns clearfix" data-v-3da8ff8d></section></div></div> <div class="post-nav-card main-div" style="position:relative;top:0;width:0px;" data-v-6cd81e6a><div class="post-nav-contents"><svg class="icon"><title>book</title><use xlink:href="#icon-book"></use></svg> <span>文章目录</span> <div class="post-nav-toc"><ul><li><a href="/posts/2023/06/09/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B8%89-es%E6%96%87%E6%A1%A3%E7%9A%84%E6%93%8D%E4%BD%9C.html#什么是文档">什么是文档</a></li><li><a href="/posts/2023/06/09/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B8%89-es%E6%96%87%E6%A1%A3%E7%9A%84%E6%93%8D%E4%BD%9C.html#获取文档">获取文档</a></li><li><a href="/posts/2023/06/09/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B8%89-es%E6%96%87%E6%A1%A3%E7%9A%84%E6%93%8D%E4%BD%9C.html#创建文档">创建文档</a></li><li><a href="/posts/2023/06/09/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B8%89-es%E6%96%87%E6%A1%A3%E7%9A%84%E6%93%8D%E4%BD%9C.html#根据-id获取文档">根据_id获取文档</a></li><li><a href="/posts/2023/06/09/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B8%89-es%E6%96%87%E6%A1%A3%E7%9A%84%E6%93%8D%E4%BD%9C.html#更新文档">更新文档</a></li><li><a href="/posts/2023/06/09/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B8%89-es%E6%96%87%E6%A1%A3%E7%9A%84%E6%93%8D%E4%BD%9C.html#删除文档">删除文档</a></li><li><a href="/posts/2023/06/09/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B8%89-es%E6%96%87%E6%A1%A3%E7%9A%84%E6%93%8D%E4%BD%9C.html#总结">总结</a></li></ul></div></div> <div class="post-nav-comments"><svg class="icon"><title>comment</title><use xlink:href="#icon-comment"></use></svg> <a href="/posts/2023/06/09/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B8%89-es%E6%96%87%E6%A1%A3%E7%9A%84%E6%93%8D%E4%BD%9C.html#post-comments">
+      评论
+    </a></div></div></aside></div> <footer class="footer" data-v-1114308c><p class="sns-links" data-v-1114308c></p> <p data-v-1114308c><span data-v-1114308c>Powered by </span> <a href="https://vuepress.vuejs.org" target="_blank" data-v-1114308c>
+      Vuepress
+    </a></p></footer></div><div class="global-ui"><!----><!----></div></div>
+    <script src="/assets/js/vendor.2.672efb23.js" defer></script><script src="/assets/js/7.44b1e335.js" defer></script><script src="/assets/js/vendor.1.3967ac5f.js" defer></script><script src="/assets/js/vendor.0.4df80900.js" defer></script><script src="/assets/js/app.a8b8daa8.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>ElasticSearch学习笔记(六)索引别名 | yang的博客</title>
+    <meta name="description" content="yang的博客">
+    <link rel="icon" href="/assets/img/avatar.jpg">
+    
+    <link rel="preload" href="/assets/css/3.styles.672efb23.css" as="style"><link rel="preload" href="/assets/js/vendor.2.672efb23.js" as="script"><link rel="preload" href="/assets/js/vendor.1.3967ac5f.js" as="script"><link rel="preload" href="/assets/css/0.styles.4df80900.css" as="style"><link rel="preload" href="/assets/js/vendor.0.4df80900.js" as="script"><link rel="preload" href="/assets/js/app.a8b8daa8.js" as="script"><link rel="preload" href="/assets/js/11.ee26bcc0.js" as="script"><link rel="prefetch" href="/assets/css/4.styles.3b621091.css"><link rel="prefetch" href="/assets/js/10.8478bdff.js"><link rel="prefetch" href="/assets/js/12.55cc93a1.js"><link rel="prefetch" href="/assets/js/13.acefd014.js"><link rel="prefetch" href="/assets/js/14.73204498.js"><link rel="prefetch" href="/assets/js/15.259a8f6b.js"><link rel="prefetch" href="/assets/js/16.b7a2ccfa.js"><link rel="prefetch" href="/assets/js/17.91927fe4.js"><link rel="prefetch" href="/assets/js/18.31d42ce8.js"><link rel="prefetch" href="/assets/js/19.5779d05f.js"><link rel="prefetch" href="/assets/js/20.0f83e315.js"><link rel="prefetch" href="/assets/js/21.e5ef8958.js"><link rel="prefetch" href="/assets/js/22.9ef640bd.js"><link rel="prefetch" href="/assets/js/23.3f7faed0.js"><link rel="prefetch" href="/assets/js/24.010d36ab.js"><link rel="prefetch" href="/assets/js/25.e648bc8e.js"><link rel="prefetch" href="/assets/js/26.7ec4c43f.js"><link rel="prefetch" href="/assets/js/27.ca7ce5ff.js"><link rel="prefetch" href="/assets/js/28.b471d502.js"><link rel="prefetch" href="/assets/js/4.3b621091.js"><link rel="prefetch" href="/assets/js/5.070e33ea.js"><link rel="prefetch" href="/assets/js/6.d4b3b4c1.js"><link rel="prefetch" href="/assets/js/7.44b1e335.js"><link rel="prefetch" href="/assets/js/8.5e5bb804.js"><link rel="prefetch" href="/assets/js/9.a3b29316.js">
+    <link rel="stylesheet" href="/assets/css/3.styles.672efb23.css"><link rel="stylesheet" href="/assets/css/0.styles.4df80900.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div id="vuepress-theme-meteorlxy"><header class="header" data-v-0539f1bd><div data-v-39c72c19 data-v-0539f1bd><nav class="navbar" data-v-39c72c19><div class="container" data-v-39c72c19><a href="/" class="router-link-active" data-v-39c72c19><span class="navbar-site-name" data-v-39c72c19>
+          yang的博客
+        </span></a> <div class="navbar-toggler" data-v-39c72c19><svg class="icon" style="font-size:1.2em;" data-v-39c72c19 data-v-39c72c19><title data-v-39c72c19 data-v-39c72c19>menu</title><use xlink:href="#icon-menu" data-v-39c72c19 data-v-39c72c19></use></svg></div> <div class="navbar-links" data-v-39c72c19><a href="/" class="navbar-link" data-v-39c72c19>
+            主页
+          </a><a href="/posts/" class="navbar-link router-link-active" data-v-39c72c19>
+            文章
+          </a></div></div></nav> <div class="navbar-holder" style="display:none;" data-v-39c72c19></div></div> <div class="banner" data-v-98d6aa8c data-v-0539f1bd data-v-0539f1bd><div class="container" data-v-98d6aa8c><div class="center" data-v-98d6aa8c><h1 data-v-98d6aa8c data-v-0539f1bd>
+          ElasticSearch学习笔记(六)索引别名
+        </h1></div></div></div></header> <div class="container clearfix show-aside" data-v-6cd81e6a data-v-6cd81e6a><main class="main" data-v-6cd81e6a><div class="post" data-v-6cd81e6a data-v-6cd81e6a><section class="post-meta main-div" data-v-4e23451f><section class="post-date clearfix" data-v-4e23451f><span class="create-date" data-v-4e23451f>
+      发布时间 : 2023-06-15
+    </span> <!----></section> <section class="post-links" data-v-4e23451f><a href="/posts/2023/06/14/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%BA%94-%E7%B4%A2%E5%BC%95%E6%A8%A1%E6%9D%BF.html" class="post-link" data-v-4e23451f>
+      上一篇 : ElasticSearch学习笔记(五)索引模板
+    </a> <a href="/posts/2023/06/16/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%85%AB-%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2%E4%B9%8Bbucket.html" class="post-link" data-v-4e23451f>
+      下一篇 : ElasticSearch学习笔记(八) 聚合之Bucket详解
+    </a></section></section> <article class="main-div"><div class="post-content content content__default"><p>​</p> <p>前面了解了Elasticsearch索引模板的概念，今天我们学习一下Elasticsearch中的别名（Alias）</p> <p>前面我们创建模板的时候指定了别名,我们直接使用前面的索引模板创建索引,同时添加一些测试数据</p> <div class="language-json extra-class"><pre class="language-json"><code>#创建索引
+PUT logs<span class="token number">-20230614</span>
+
+#准备数据
+
+POST /logs<span class="token number">-20230614</span>/_bulk
+<span class="token punctuation">{</span> <span class="token property">&quot;index&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">}</span>
+<span class="token punctuation">{</span> <span class="token property">&quot;user_id&quot;</span><span class="token operator">:</span> <span class="token number">2</span><span class="token punctuation">,</span><span class="token property">&quot;operate&quot;</span><span class="token operator">:</span><span class="token string">&quot;登录&quot;</span><span class="token punctuation">,</span> <span class="token property">&quot;timestamp&quot;</span><span class="token operator">:</span> <span class="token string">&quot;2023-06-14 08:09:50&quot;</span> <span class="token punctuation">}</span>
+<span class="token punctuation">{</span> <span class="token property">&quot;index&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">}</span>
+<span class="token punctuation">{</span> <span class="token property">&quot;user_id&quot;</span><span class="token operator">:</span> <span class="token number">2</span><span class="token punctuation">,</span><span class="token property">&quot;operate&quot;</span><span class="token operator">:</span><span class="token string">&quot;退出&quot;</span><span class="token punctuation">,</span> <span class="token property">&quot;timestamp&quot;</span><span class="token operator">:</span> <span class="token string">&quot;2023-06-14 09:09:50&quot;</span> <span class="token punctuation">}</span>
+</code></pre></div><p>我们可以通过单个索引来查询对应的文档数据</p> <div class="language-json extra-class"><pre class="language-json"><code>GET logs<span class="token number">-20230614</span>/_search
+
+#返回结果
+<span class="token punctuation">{</span>
+  <span class="token property">&quot;took&quot;</span> <span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;timed_out&quot;</span> <span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;_shards&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;total&quot;</span> <span class="token operator">:</span> <span class="token number">3</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;successful&quot;</span> <span class="token operator">:</span> <span class="token number">3</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;skipped&quot;</span> <span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;failed&quot;</span> <span class="token operator">:</span> <span class="token number">0</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;hits&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;total&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token property">&quot;value&quot;</span> <span class="token operator">:</span> <span class="token number">2</span><span class="token punctuation">,</span>
+      <span class="token property">&quot;relation&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;eq&quot;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;max_score&quot;</span> <span class="token operator">:</span> <span class="token number">1.0</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;hits&quot;</span> <span class="token operator">:</span> <span class="token punctuation">[</span>
+      <span class="token punctuation">{</span>
+        <span class="token property">&quot;_index&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;logs-20230614&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_type&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;_doc&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_id&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;Et6yuIgBA6ekKo2Ikb-e&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_score&quot;</span> <span class="token operator">:</span> <span class="token number">1.0</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_source&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token property">&quot;user_id&quot;</span> <span class="token operator">:</span> <span class="token number">2</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;operate&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;登录&quot;</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;timestamp&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;2023-06-14 08:09:50&quot;</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token punctuation">{</span>
+        <span class="token property">&quot;_index&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;logs-20230614&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_type&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;_doc&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_id&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;E96yuIgBA6ekKo2Ikb-e&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_score&quot;</span> <span class="token operator">:</span> <span class="token number">1.0</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_source&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token property">&quot;user_id&quot;</span> <span class="token operator">:</span> <span class="token number">2</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;operate&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;退出&quot;</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;timestamp&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;2023-06-14 09:09:50&quot;</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">]</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>我们也可以通过别名<code>logs</code>来查询多个索引的数据</p> <div class="language-json extra-class"><pre class="language-json"><code>GET logs/_search
+
+#返回结果
+<span class="token punctuation">{</span>
+  <span class="token property">&quot;took&quot;</span> <span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;timed_out&quot;</span> <span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;_shards&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;total&quot;</span> <span class="token operator">:</span> <span class="token number">9</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;successful&quot;</span> <span class="token operator">:</span> <span class="token number">9</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;skipped&quot;</span> <span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;failed&quot;</span> <span class="token operator">:</span> <span class="token number">0</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token property">&quot;hits&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">&quot;total&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token property">&quot;value&quot;</span> <span class="token operator">:</span> <span class="token number">6</span><span class="token punctuation">,</span>
+      <span class="token property">&quot;relation&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;eq&quot;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;max_score&quot;</span> <span class="token operator">:</span> <span class="token number">1.0</span><span class="token punctuation">,</span>
+    <span class="token property">&quot;hits&quot;</span> <span class="token operator">:</span> <span class="token punctuation">[</span>
+      <span class="token punctuation">{</span>
+        <span class="token property">&quot;_index&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;logs-20230613&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_type&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;_doc&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_id&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;EN6yuIgBA6ekKo2Ihb-8&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_score&quot;</span> <span class="token operator">:</span> <span class="token number">1.0</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_source&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token property">&quot;user_id&quot;</span> <span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;operate&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;登录&quot;</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;timestamp&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;2023-06-13 08:09:50&quot;</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token punctuation">{</span>
+        <span class="token property">&quot;_index&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;logs-20230613&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_type&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;_doc&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_id&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;Ed6yuIgBA6ekKo2Ihb-8&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_score&quot;</span> <span class="token operator">:</span> <span class="token number">1.0</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_source&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token property">&quot;user_id&quot;</span> <span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;operate&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;退出&quot;</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;timestamp&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;2023-06-13 09:09:50&quot;</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token punctuation">{</span>
+        <span class="token property">&quot;_index&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;logs-20230614&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_type&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;_doc&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_id&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;Et6yuIgBA6ekKo2Ikb-e&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_score&quot;</span> <span class="token operator">:</span> <span class="token number">1.0</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_source&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token property">&quot;user_id&quot;</span> <span class="token operator">:</span> <span class="token number">2</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;operate&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;登录&quot;</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;timestamp&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;2023-06-14 08:09:50&quot;</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token punctuation">{</span>
+        <span class="token property">&quot;_index&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;logs-20230613&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_type&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;_doc&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_id&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;Fd7PuIgBA6ekKo2Itb_i&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_score&quot;</span> <span class="token operator">:</span> <span class="token number">1.0</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_source&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token property">&quot;user_id&quot;</span> <span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;operate&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;修改用户信息&quot;</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;msg&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;成功&quot;</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;timestamp&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;2023-06-13 10:30:50&quot;</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token punctuation">{</span>
+        <span class="token property">&quot;_index&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;logs-20230613&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_type&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;_doc&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_id&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;FN7PuIgBA6ekKo2Itb_i&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_score&quot;</span> <span class="token operator">:</span> <span class="token number">1.0</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_source&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token property">&quot;user_id&quot;</span> <span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;operate&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;登录&quot;</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;msg&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;成功&quot;</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;timestamp&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;2023-06-13 10:09:50&quot;</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token punctuation">{</span>
+        <span class="token property">&quot;_index&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;logs-20230614&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_type&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;_doc&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_id&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;E96yuIgBA6ekKo2Ikb-e&quot;</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_score&quot;</span> <span class="token operator">:</span> <span class="token number">1.0</span><span class="token punctuation">,</span>
+        <span class="token property">&quot;_source&quot;</span> <span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token property">&quot;user_id&quot;</span> <span class="token operator">:</span> <span class="token number">2</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;operate&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;退出&quot;</span><span class="token punctuation">,</span>
+          <span class="token property">&quot;timestamp&quot;</span> <span class="token operator">:</span> <span class="token string">&quot;2023-06-14 09:09:50&quot;</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">]</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>通过上面的例子，我们可以看到：查询别名<code>logs</code>的数据的时候同时返回了索引<code>logs-20230613</code>和<code>logs-20230614</code>的数据。别名实际上就是一个指向一个或多个索引的指针，它可以用于简化查询，为索引进行重命名，便于管理和版本控制等。</p> <p>以下是一些常见的别名操作：</p> <ol><li>添加别名：使用 _aliases API 可以将一个或多个索引添加到新的别名中，例如：</li></ol> <div class="language-json extra-class"><pre class="language-json"><code>POST /_aliases
+<span class="token punctuation">{</span>
+  <span class="token property">&quot;actions&quot;</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span> <span class="token property">&quot;add&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token property">&quot;index&quot;</span><span class="token operator">:</span> <span class="token string">&quot;my_index&quot;</span><span class="token punctuation">,</span> <span class="token property">&quot;alias&quot;</span><span class="token operator">:</span> <span class="token string">&quot;my_alias&quot;</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span>
+  <span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>在上面的例子中，我们将 &quot;my_index&quot; 添加到新别名 &quot;my_alias&quot; 中，如果该别名不存在，则会自动创建它。</p> <ol><li>删除别名：要删除别名，请使用 _aliases API 并指定要移除的别名和索引名称，例如：</li></ol> <div class="language-json extra-class"><pre class="language-json"><code>POST /_aliases
+<span class="token punctuation">{</span>
+  <span class="token property">&quot;actions&quot;</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span> <span class="token property">&quot;remove&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token property">&quot;index&quot;</span><span class="token operator">:</span> <span class="token string">&quot;my_index&quot;</span><span class="token punctuation">,</span> <span class="token property">&quot;alias&quot;</span><span class="token operator">:</span> <span class="token string">&quot;my_alias&quot;</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span>
+  <span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>以上命令将从别名 &quot;my_alias&quot; 中移除 &quot;my_index&quot;，如果别名不再映射到任何索引，则该别名将被删除。</p> <ol><li>更新别名：要将现有别名更新为新的索引，请使用 _aliases API 并指定要添加和删除的索引，例如：</li></ol> <div class="language-json extra-class"><pre class="language-json"><code>POST /_aliases
+<span class="token punctuation">{</span>
+  <span class="token property">&quot;actions&quot;</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span> <span class="token property">&quot;add&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token property">&quot;index&quot;</span><span class="token operator">:</span> <span class="token string">&quot;new_index&quot;</span><span class="token punctuation">,</span> <span class="token property">&quot;alias&quot;</span><span class="token operator">:</span> <span class="token string">&quot;my_alias&quot;</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span> <span class="token property">&quot;remove&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token property">&quot;index&quot;</span><span class="token operator">:</span> <span class="token string">&quot;old_index&quot;</span><span class="token punctuation">,</span> <span class="token property">&quot;alias&quot;</span><span class="token operator">:</span> <span class="token string">&quot;my_alias&quot;</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span>
+  <span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>在上面的例子中，我们将 &quot;new_index&quot; 添加到 &quot;my_alias&quot; 中，并将 &quot;old_index&quot; 从别名中移除。</p> <ol><li>灰度发布：别名还可以用于实现平滑的索引版本升级。具体来说，我们可以使用别名分配新版本的索引，并逐步移除旧版本的索引，例如：</li></ol> <div class="language-json extra-class"><pre class="language-json"><code>POST /_aliases
+<span class="token punctuation">{</span>
+  <span class="token property">&quot;actions&quot;</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span> <span class="token property">&quot;add&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token property">&quot;index&quot;</span><span class="token operator">:</span> <span class="token string">&quot;new_index&quot;</span><span class="token punctuation">,</span> <span class="token property">&quot;alias&quot;</span><span class="token operator">:</span> <span class="token string">&quot;my_alias&quot;</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span> <span class="token property">&quot;remove&quot;</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token property">&quot;index&quot;</span><span class="token operator">:</span> <span class="token string">&quot;old_index&quot;</span><span class="token punctuation">,</span> <span class="token property">&quot;alias&quot;</span><span class="token operator">:</span> <span class="token string">&quot;my_alias&quot;</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span>
+  <span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>在上面的例子中，我们添加了新索引 &quot;new_index&quot; 到别名 &quot;my_alias&quot; 中，并逐步将旧索引 &quot;old_index&quot; 从别名中移除。</p> <p>以下是使用别名的常见用途:</p> <ol><li>灰度发布：当我们需要对当前正在使用的索引进行升级或更改时，可以使用别名来实现平滑过渡。具体做法是，将新版本的索引添加到别名中，并逐步从别名中移除旧版本。这样，我们可以平滑地切换到新的索引版本，同时避免数据重复或丢失。</li> <li>搜索路由：别名可以将多个相关联的索引捆绑在一起，并在查询时自动路由到它们中的正确索引。例如，如果我们有一个分布式索引集群，其中包含多个具有相同数据结构的索引，可以通过一个别名进行搜索并向各个节点发送查询请求。</li> <li>数据备份：使用别名的另一个常见用途是实现数据备份和恢复。具体来说，我们可以建立一个别名，将需要备份的索引添加到其中，并将别名导出为独立的文件。在需要恢复数据时，只需将备份文件导入并将其作为别名即可。</li> <li>提高查询效率：在某些场景下，需要对多个索引进行查询或分组。通过使用别名，可以将多个索引组合成一个虚拟索引，从而简化查询操作，提高查询效率。</li> <li>实现索引的分组和组合：别名的灵活性还表现在可以对索引进行分组和组合。例如，可以将一个时间段内的所有索引组合成一个虚拟索引，从而方便地查询这个时间段内的所有数据。</li></ol></div></article> <section class="post-meta main-div" data-v-4e23451f><section class="post-date clearfix" data-v-4e23451f><span class="create-date" data-v-4e23451f>
+      发布时间 : 2023-06-15
+    </span> <!----></section> <section class="post-links" data-v-4e23451f><a href="/posts/2023/06/14/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%BA%94-%E7%B4%A2%E5%BC%95%E6%A8%A1%E6%9D%BF.html" class="post-link" data-v-4e23451f>
+      上一篇 : ElasticSearch学习笔记(五)索引模板
+    </a> <a href="/posts/2023/06/16/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%85%AB-%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2%E4%B9%8Bbucket.html" class="post-link" data-v-4e23451f>
+      下一篇 : ElasticSearch学习笔记(八) 聚合之Bucket详解
+    </a></section></section> <div id="post-comments" class="main-div"><!----></div></div></main> <aside class="aside" data-v-6cd81e6a><div class="info-card main-div" data-v-3da8ff8d data-v-6cd81e6a><div class="info-card-header" data-v-3da8ff8d><img src="/assets/img/avatar.jpg" alt="yang" class="info-avatar" data-v-3da8ff8d></div> <div class="info-card-body" data-v-3da8ff8d><section class="info-nickname" data-v-3da8ff8d>
+      yang
+    </section> <!----> <section class="info-contact" data-v-3da8ff8d><!----> <!----> <!----></section></div> <div class="info-card-footer" data-v-3da8ff8d><section class="info-sns clearfix" data-v-3da8ff8d></section></div></div> <div class="post-nav-card main-div" style="position:relative;top:0;width:0px;" data-v-6cd81e6a><!----> <div class="post-nav-comments"><svg class="icon"><title>comment</title><use xlink:href="#icon-comment"></use></svg> <a href="/posts/2023/06/15/elasticsearch%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E5%85%AD-%E7%B4%A2%E5%BC%95%E5%88%AB%E5%90%8D.html#post-comments">
+      评论
+    </a></div></div></aside></div> <footer class="footer" data-v-1114308c><p class="sns-links" data-v-1114308c></p> <p data-v-1114308c><span data-v-1114308c>Powered by </span> <a href="https://vuepress.vuejs.org" target="_blank" data-v-1114308c>
+      Vuepress
+    </a></p></footer></div><div class="global-ui"><!----><!----></div></div>
+    <script src="/assets/js/vendor.2.672efb23.js" defer></script><script src="/assets/js/11.ee26bcc0.js" defer></script><script src="/assets/js/vendor.1.3967ac5f.js" defer></script><script src="/assets/js/vendor.0.4df80900.js" defer></script><script src="/assets/js/app.a8b8daa8.js" defer></script>
+  </body>
+</html>
